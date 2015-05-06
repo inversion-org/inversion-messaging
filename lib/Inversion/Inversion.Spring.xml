@@ -1,0 +1,155 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Inversion.Spring</name>
+    </assembly>
+    <members>
+        <member name="T:Inversion.Spring.BehaviourObjectDefinitionParser">
+            <summary>
+            Implements a parser that is able to parse behaviour definitions
+            in a Spring XML object config.
+            </summary>
+        </member>
+        <member name="M:Inversion.Spring.BehaviourObjectDefinitionParser.GetObjectTypeName(System.Xml.XmlElement)">
+            <summary>
+            Obtains the fully qualified type name of the object represented
+            by the XML element.
+            </summary>
+            <param name="element">The object representation in XML.</param>
+            <returns>
+            Returns the fully qualified type name for the object being described.
+            </returns>
+        </member>
+        <member name="M:Inversion.Spring.BehaviourObjectDefinitionParser.DoParse(System.Xml.XmlElement,Spring.Objects.Factory.Support.ObjectDefinitionBuilder)">
+            <summary>
+            Parse the supplied XmlElement and populate the supplied ObjectDefinitionBuilder as required.
+            </summary>
+            <param name="xml">The object representation in XML.</param>
+            <param name="builder">The builder used to build the object definition in Spring.</param>
+        </member>
+        <member name="P:Inversion.Spring.BehaviourObjectDefinitionParser.ShouldGenerateIdAsFallback">
+            <summary>
+            Gets a value indicating whether an ID should be generated instead 
+            if the passed in XmlElement does not specify an "id" attribute explicitly. 
+            </summary>
+        </member>
+        <member name="T:Inversion.Spring.BehaviourNamespaceParser">
+            <summary>
+            Registers tags to be used in configuration with the class that will process
+            those tags.
+            </summary>
+        </member>
+        <member name="M:Inversion.Spring.BehaviourNamespaceParser.Init">
+            <summary>
+            Invoked by <see cref="T:Spring.Objects.Factory.Xml.NamespaceParserRegistry"/> after construction but before any
+                        elements have been parsed.
+            </summary>
+        </member>
+        <member name="T:Inversion.Spring.ServiceContainer">
+            <summary>
+            A service container backed by Sprint.NET
+            </summary>
+        </member>
+        <member name="M:Inversion.Spring.ServiceContainer.#ctor">
+            <summary>
+            Instantiates a new service container, and configures it
+            from the Spring config.
+            </summary>
+            <remarks>
+            In most cases you'll probably just want to use `ServiceContainer.Instance`
+            </remarks>
+        </member>
+        <member name="M:Inversion.Spring.ServiceContainer.#ctor(Spring.Context.IApplicationContext)">
+            <summary>
+            Instantiates a new service container using the
+            provided application context.
+            </summary>
+            <param name="container">
+            You can think of this `container` as the underlying Spring backing.
+            This is "the thing".
+            </param>
+        </member>
+        <member name="M:Inversion.Spring.ServiceContainer.Dispose">
+            <summary>
+            Releases all resources maintained by the current context instance.
+            </summary>
+        </member>
+        <member name="M:Inversion.Spring.ServiceContainer.Dispose(System.Boolean)">
+            <summary>
+            Disposal that allows for partitioning of 
+            clean-up of managed and unmanaged resources.
+            </summary>
+            <param name="disposing"></param>
+            <remarks>
+            This is looking conceited and should probably be removed.
+            I'm not even sure I can explain a use case for it in terms
+            of an Inversion context.
+            </remarks>
+        </member>
+        <member name="M:Inversion.Spring.ServiceContainer.GetService(System.String)">
+            <summary>
+            Gets the service if any of the provided name.
+            </summary>
+            <param name="name">The name of the service to obtain.</param>
+            <returns>Returns the service of the specified name.</returns>
+        </member>
+        <member name="M:Inversion.Spring.ServiceContainer.GetService(System.String,System.Type)">
+            <summary>
+            Gets the service if any of the provided name. Further asserts that the
+            service is on an expected type.
+            </summary>
+            <param name="name">The name of the service to obtain.</param>
+            <param name="type">The type the service is expected to be.</param>
+            <returns>Returns the service of the specified name.</returns>
+        </member>
+        <member name="M:Inversion.Spring.ServiceContainer.GetService``1(System.String)">
+            <summary>
+            Gets the service if any of the provided name and type.
+            </summary>
+            <typeparam name="T">The type of the service being obtained.</typeparam>
+            <param name="name">The name of the service to obtain.</param>
+            <returns>Returns the service of the specified name.</returns>
+        </member>
+        <member name="M:Inversion.Spring.ServiceContainer.ContainsService(System.String)">
+            <summary>
+            Determines if the container has a service of a specified name.
+            </summary>
+            <param name="name">The name of the service to check for.</param>
+            <returns>Returns true if the service exists; otherwise returns false.</returns>
+        </member>
+        <member name="P:Inversion.Spring.ServiceContainer.Instance">
+            <summary>
+            A singleton instance of the service container.
+            </summary>
+        </member>
+        <member name="T:Inversion.Spring.ViewBehaviourObjectDefinitionParser">
+            <summary>
+            Implements a parser that is able to parse view behaviour definitions
+            in a Spring XML object config.
+            </summary>
+        </member>
+        <member name="M:Inversion.Spring.ViewBehaviourObjectDefinitionParser.GetObjectTypeName(System.Xml.XmlElement)">
+            <summary>
+            Obtains the fully qualified type name of the object represented
+            by the XML element.
+            </summary>
+            <param name="element">The object representation in XML.</param>
+            <returns>
+            Returns the fully qualified type name for the object being described.
+            </returns>
+        </member>
+        <member name="M:Inversion.Spring.ViewBehaviourObjectDefinitionParser.DoParse(System.Xml.XmlElement,Spring.Objects.Factory.Support.ObjectDefinitionBuilder)">
+            <summary>
+            Parse the supplied XmlElement and populate the supplied ObjectDefinitionBuilder as required.
+            </summary>
+            <param name="xml">The obejct representation in XML.</param>
+            <param name="builder">The builder used to build the object definition in Spring.</param>
+        </member>
+        <member name="P:Inversion.Spring.ViewBehaviourObjectDefinitionParser.ShouldGenerateIdAsFallback">
+            <summary>
+            Gets a value indicating whether an ID should be generated instead 
+            if the passed in XmlElement does not specify an "id" attribute explicitly. 
+            </summary>
+        </member>
+    </members>
+</doc>
