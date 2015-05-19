@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using StackExchange.Redis;
 
 using Inversion.Data.Redis;
+using Inversion.Messaging.Model;
 using Inversion.Process;
-using Newtonsoft.Json.Linq;
 
 namespace Inversion.Messaging.Transport
 {
@@ -27,12 +26,26 @@ namespace Inversion.Messaging.Transport
 
         public IEvent Pop()
         {
-            return this.ConvertDocumentToEvent(this.Database.ListLeftPop(_queueName));
+            string result = this.Database.ListLeftPop(_queueName);
+            
+            if (String.IsNullOrEmpty(result))
+            {
+                return null;
+            }
+
+            return this.ConvertDocumentToEvent(result);
         }
 
         public IEvent Peek()
         {
-            return this.ConvertDocumentToEvent(this.Database.ListGetByIndex(_queueName, 0));
+            string result = this.Database.ListGetByIndex(_queueName, 0);
+
+            if (String.IsNullOrEmpty(result))
+            {
+                return null;
+            }
+
+            return this.ConvertDocumentToEvent(result);
         }
 
         public long Count()
@@ -42,7 +55,7 @@ namespace Inversion.Messaging.Transport
 
         protected IEvent ConvertDocumentToEvent(string source)
         {
-            return Event.FromJson(null, source);
+            return MessagingEvent.FromJson(null, source);
         }
     }
 }

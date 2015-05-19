@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Process\RedisEngineController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transport\RedisTransport.cs" />
   </ItemGroup>

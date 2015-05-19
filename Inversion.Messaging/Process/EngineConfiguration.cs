@@ -68,11 +68,5 @@ namespace Inversion.Messaging.Process
         /// </summary>
         public bool ExitOnEmptyQueue { get { return _exitOnEmptyQueue; } set { _exitOnEmptyQueue = value; } }
         private bool _exitOnEmptyQueue = false;
-
-        public IServiceContainer ServiceContainer { get { return _serviceContainer; } set { _serviceContainer = value; } }
-        private IServiceContainer _serviceContainer;
-
-        public IResourceAdapter ResourceAdapter { get { return _resourceAdapter; } set { _resourceAdapter = value; } }
-        private IResourceAdapter _resourceAdapter;
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
 using Inversion.Data;
+using Inversion.Messaging.Model;
 using Inversion.Messaging.Transport;
 using Inversion.Process;
 using Inversion.Process.Behaviour;
@@ -62,17 +63,23 @@ namespace Inversion.Messaging.Process
         public EngineConfiguration Configuration
         {
             get { return _config; }
-            set { _config = value; }
         }
 
-        private EngineConfiguration _config = new EngineConfiguration();
+        private readonly EngineConfiguration _config;
 
-        public Engine(ITransport incoming, ITransport success, ITransport failure, IEngineController control)
+        private IServiceContainer _serviceContainer;
+        private IResourceAdapter _resourceAdapter;
+
+        public Engine(ITransport incoming, ITransport success, ITransport failure, IEngineController control) :
+            this(incoming, success, failure, control, new EngineConfiguration()) { }
+
+        public Engine(ITransport incoming, ITransport success, ITransport failure, IEngineController control, EngineConfiguration configuration)
         {
             _incoming = incoming;
             _success = success;
             _failure = failure;
             _control = control;
+            _config = configuration;
         }
 
         /// <summary>
@@ -106,8 +113,11 @@ namespace Inversion.Messaging.Process
             base.Start();
         }
 
-        public void Process()
+        public void Process(IServiceContainer serviceContainer, IResourceAdapter resourceAdapter)
         {
+            _serviceContainer = serviceContainer;
+            _resourceAdapter = resourceAdapter;
+
             Initialise();
 
             _engineTask = Task.Factory.StartNew(Run);
@@ -136,10 +146,8 @@ namespace Inversion.Messaging.Process
                 {
                     if (_currentStatus == EngineStatus.Working)
                     {
-                        return new Event(null, "engine::heartbeat", new Dictionary<string, string>
-                        {
-                            {"_created", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}
-                        });
+                        return new MessagingEvent(null, "engine::heartbeat", DateTime.Now,
+                            new Dictionary<string, string>());
                     }
 
                     return null;
@@ -387,11 +395,8 @@ namespace Inversion.Messaging.Process
         /// <param name="e">The event to process</param>
         protected bool ProcessEvent(IEvent e)
         {
-            IServiceContainer services = this.Configuration.ServiceContainer;
-            IResourceAdapter resources = this.Configuration.ResourceAdapter;
-
             // create a fresh context
-            ProcessContext context = new ProcessContext(services, resources);
+            ProcessContext context = new ProcessContext(_serviceContainer, _resourceAdapter);
 
             //Console.WriteLine("ProcessEvent {0}", e.Message);
 
@@ -401,18 +406,22 @@ namespace Inversion.Messaging.Process
             // register them on the context message bus
             context.Register(behaviours);
             // begin an overall timer
-            context.Timers.Begin("process-request");
+            context.Timers.Begin("engine::begin-event");
 
             bool success = false;
 
+            DateTime eventCreated = DateTime.Now;
+
+            if (e is MessagingEvent)
+            {
+                eventCreated = ((MessagingEvent) e).Created;
+            }
+
             try
             {
-                // bootstrap the request
-                context.Fire("process-request");
-
                 // construct a new event with our fresh context, the source event's message and parameters
                 // then fire the event - this will perform the actual behavioural work
-                IEvent thisEvent = new Event(context, e.Message, e.Params).Fire();
+                IEvent thisEvent = new MessagingEvent(context, e.Message, eventCreated, e.Params).Fire();
 
                 // escalate any errors
                 if (thisEvent.HasParams("_failed"))
@@ -468,6 +477,18 @@ namespace Inversion.Messaging.Process
             Console.WriteLine("Engine: Resuming");
             Trace.TraceInformation("Engine: Resuming");
             _desiredState = EngineStatus.Working;
+        }
+
+        public void EnsureStarted()
+        {
+            _control.ForceStatus(_config.ControlName,
+                new EngineControlStatus
+            {
+                CurrentStatus = EngineStatus.Starting,
+                DesiredStatus = EngineStatus.Working,
+                Name = _config.ControlName,
+                Updated = DateTime.Now
+            });
         }
     }
 }

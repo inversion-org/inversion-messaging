@@ -1502,10 +1502,10 @@
         <member name="T:Inversion.Process.IServiceContainer">
             <summary>
             Represent the contract of a simple service
-            container from which services may be ontained by name.
-            This interface focused on consuming services from a container
-            and does not speak to the configuration or management
-            of a container.
+            container from which services may be obtained by name.
+            This interface is focused on consuming services from a
+            container and does not speak to the configuration or
+            management of a container.
             </summary>
         </member>
         <member name="M:Inversion.Process.IServiceContainer.GetService``1(System.String)">
@@ -1522,6 +1522,32 @@
             </summary>
             <param name="name">The name of the service to check for.</param>
             <returns>Returns true if the service exists; otherwise returns false.</returns>
+        </member>
+        <member name="T:Inversion.Process.IServiceContainerRegistrar">
+            <summary>
+            Represent the contract of creating or adding to a simple
+            service container
+            Represent the contract of a simple service from which
+            services may be obtained by name.
+            This interface focuses on the configuration of a
+            container.
+            </summary>
+        </member>
+        <member name="M:Inversion.Process.IServiceContainerRegistrar.RegisterService``1(System.String,System.Func{Inversion.Process.IServiceContainer,``0})">
+            <summary>
+            Registers a singleton service by storing its constructor.
+            </summary>
+            <typeparam name="T">The type of the service being registered.</typeparam>
+            <param name="name">The name of the service to register.</param>
+            <param name="ctor">The function returning a constructor for registration.</param>
+        </member>
+        <member name="M:Inversion.Process.IServiceContainerRegistrar.RegisterServiceNonSingleton``1(System.String,System.Func{Inversion.Process.IServiceContainer,``0})">
+            <summary>
+            Registers a non-singleton service by storing its constructor.
+            </summary>
+            <typeparam name="T">The type of the service being registered.</typeparam>
+            <param name="name">The name of the service to register.</param>
+            <param name="ctor">The function returning a constructor for registration.</param>
         </member>
         <member name="T:Inversion.Process.ProcessContext">
             <summary>
