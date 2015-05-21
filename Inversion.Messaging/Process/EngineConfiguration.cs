@@ -16,40 +16,22 @@ namespace Inversion.Messaging.Process
         private int _numberOfWorkerTasks = 4;
 
         /// <summary>
-        /// How long a worker should idle for if it has no work to perform (milliseconds). Default is 1ms.
+        /// Minimum time the engine task should yield for in-between pumping events (milliseconds). Default is 100ms.
         /// </summary>
-        public int WorkerIdleTime { get { return _workerIdleTime; } set { _workerIdleTime = value; } }
-        private int _workerIdleTime = 1;
+        public int EngineMinimumYieldTime { get { return _engineMinimumYieldTime; } set { _engineMinimumYieldTime = value; } }
+        private int _engineMinimumYieldTime = 100;
 
         /// <summary>
-        /// How long a worker should yield for after it has performed some work (milliseconds). Default is 0ms.
+        /// Maximum time the engine task should yield for in-between pumping events (milliseconds). Default is 500ms.
         /// </summary>
-        public int WorkerYieldTime { get { return _workerYieldTime; } set { _workerYieldTime = value; } }
-        private int _workerYieldTime = 0;
+        public int EngineMaximumYieldTime { get { return _engineMaximumYieldTime; } set { _engineMaximumYieldTime = value; } }
+        private int _engineMaximumYieldTime = 500;
 
         /// <summary>
-        /// How long the engine task should yield for if it cannot find a free worker for an event (milliseconds). Default is 1ms.
+        /// Amount of time that the engine task should keep running at minimum yield time if readers are not busy (milliseconds). Default is 2000ms.
         /// </summary>
-        public int EngineWaitYieldTime { get { return _engineWaitYieldTime; } set { _engineWaitYieldTime = value; } }
-        private int _engineWaitYieldTime = 1;
-
-        /// <summary>
-        /// How long the engine task should yield for in-between pumping events (milliseconds). Default is 1ms.
-        /// </summary>
-        public int EngineYieldTime { get { return _engineYieldTime; } set { _engineYieldTime = value; } }
-        private int _engineYieldTime = 1;
-
-        /// <summary>
-        /// How long the push handler should yield for in-between work (milliseconds). Default is 1ms.
-        /// </summary>
-        public int PushHandlerYieldTime { get { return _pushHandlerYieldTime; } set { _pushHandlerYieldTime = value; } }
-        private int _pushHandlerYieldTime = 1;
-
-        /// <summary>
-        /// Maximum number of events should be pushed to their respective target transports by the push handler at a time. Default is 5.
-        /// </summary>
-        public int PushHandlerMaxEvents { get { return _pushHandlerMaxEvents; } set { _pushHandlerMaxEvents = value; } }
-        private int _pushHandlerMaxEvents = 5;
+        public int EngineCooldownTime { get { return _engineCooldownTime; } set { _engineCooldownTime = value; } }
+        private int _engineCooldownTime = 2000;
 
         /// <summary>
         /// How long the control handler should yield for in-between attempting to receive commands (milliseconds). Default is 1000ms.

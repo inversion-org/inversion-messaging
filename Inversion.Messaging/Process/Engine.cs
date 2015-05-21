@@ -33,6 +33,9 @@ namespace Inversion.Messaging.Process
 
         private readonly List<ActionBlock<Tuple<IEvent, bool>>> _enginePushBlocks = new List<ActionBlock<Tuple<IEvent, bool>>>();
 
+        protected List<bool> _readerSucceeded = new List<bool>();
+        protected DateTime _mostRecentReaderSuccess = DateTime.MinValue;
+
         private Task _engineTask;
         private EngineStatus _desiredState;
         private bool _disposed = false;
@@ -123,14 +126,17 @@ namespace Inversion.Messaging.Process
             _engineTask = Task.Factory.StartNew(Run);
         }
 
-        protected TransformBlock<EngineStatus, IEvent> MakeReadBlock()
+        protected TransformBlock<EngineStatus, IEvent> MakeReadBlock(int index)
         {
             return new TransformBlock<EngineStatus, IEvent>(
                 (engineStatus) =>
                 {
+                    int myIndex = index;
                     if (_currentStatus == EngineStatus.Working)
                     {
-                        return _incoming.Pop();
+                        IEvent result = _incoming.Pop();
+                        _readerSucceeded[myIndex] = (result != null);
+                        return result;
                     }
 
                     return null;
@@ -187,11 +193,12 @@ namespace Inversion.Messaging.Process
             List<TransformBlock<EngineStatus, IEvent>> readers = new List<TransformBlock<EngineStatus, IEvent>>();
             for (int x = 0; x < _config.NumberOfWorkerTasks; x++)
             {
-                TransformBlock<EngineStatus, IEvent> reader = this.MakeReadBlock();
+                TransformBlock<EngineStatus, IEvent> reader = this.MakeReadBlock(x);
                 broadcastBlock.LinkTo(reader);
                 reader.LinkTo(processBlock, ev => ev != null);
                 reader.LinkTo(new ActionBlock<IEvent>((ev) => _drained = true));
                 readers.Add(reader);
+                _readerSucceeded.Add(false);
             }
 
             heartbeatBlock.LinkTo(processBlock, ev => ev != null);
@@ -344,10 +351,12 @@ namespace Inversion.Messaging.Process
                     }
                 }
 
+                int yieldTime = this.CalculateYieldTime();
+
                 if (keepRunning)
                 {
                     // yield for a configurable time
-                    System.Threading.Thread.Sleep(_config.EngineYieldTime);
+                    System.Threading.Thread.Sleep(yieldTime);
                 }
             }
 
@@ -359,11 +368,31 @@ namespace Inversion.Messaging.Process
             {
                 blocksStillHaveInput = _engineProcessBlock.InputCount > 0 ||
                                        _enginePushBlocks.Any(b => b.InputCount > 0);
-                System.Threading.Thread.Sleep(_config.EngineYieldTime);
+                System.Threading.Thread.Sleep(_config.EngineMinimumYieldTime);
             }
 
             //ShutdownPushHandler();
             ShutdownControlHandler();
+        }
+
+        protected virtual int CalculateYieldTime()
+        {
+            bool anyReaderSuccess = _readerSucceeded.Any(s => s);
+
+            if (anyReaderSuccess)
+            {
+                _mostRecentReaderSuccess = DateTime.Now;
+            }
+
+            if (!anyReaderSuccess)
+            {
+                if (DateTime.Now.Subtract(_mostRecentReaderSuccess).TotalMilliseconds > _config.EngineCooldownTime)
+                {
+                    return _config.EngineMaximumYieldTime;
+                }
+            }
+
+            return _config.EngineMinimumYieldTime;
         }
 
         private void ControlHandler()
