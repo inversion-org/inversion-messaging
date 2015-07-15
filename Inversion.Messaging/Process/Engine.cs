@@ -19,7 +19,7 @@ namespace Inversion.Messaging.Process
     /// The engine is constructed and then Start() should be called to begin processing.
     /// Join() can be used by the caller to block while waiting for the engine to complete its work.
     /// </summary>
-    public class Engine : Store, IEngineCommandReceiver, IEngine
+    public class Engine : StoreBase, IEngineCommandReceiver, IEngine
     {
         private readonly ITransport _incoming;
         private readonly ITransport _success;

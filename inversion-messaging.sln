@@ -7,6 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging", "Inve
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging.Redis", "Inversion.Messaging.Redis\Inversion.Messaging.Redis.csproj", "{14BEA733-1D9D-4020-9AC1-51650F4570D9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging.Filesystem", "Inversion.Messaging.Filesystem\Inversion.Messaging.Filesystem.csproj", "{473060A3-08AA-4CC3-988B-D725604B99EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging.Sql", "Inversion.Messaging.Sql\Inversion.Messaging.Sql.csproj", "{A9A73BCC-F72D-4310-A701-29A69C12F708}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging.MsSql", "Inversion.Messaging.MsSql\Inversion.Messaging.MsSql.csproj", "{4A7E02C3-0159-4879-94A2-46C6F9D03986}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +27,18 @@ Global
 		{14BEA733-1D9D-4020-9AC1-51650F4570D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14BEA733-1D9D-4020-9AC1-51650F4570D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14BEA733-1D9D-4020-9AC1-51650F4570D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{473060A3-08AA-4CC3-988B-D725604B99EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{473060A3-08AA-4CC3-988B-D725604B99EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{473060A3-08AA-4CC3-988B-D725604B99EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{473060A3-08AA-4CC3-988B-D725604B99EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9A73BCC-F72D-4310-A701-29A69C12F708}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9A73BCC-F72D-4310-A701-29A69C12F708}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9A73BCC-F72D-4310-A701-29A69C12F708}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9A73BCC-F72D-4310-A701-29A69C12F708}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A7E02C3-0159-4879-94A2-46C6F9D03986}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A7E02C3-0159-4879-94A2-46C6F9D03986}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A7E02C3-0159-4879-94A2-46C6F9D03986}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A7E02C3-0159-4879-94A2-46C6F9D03986}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

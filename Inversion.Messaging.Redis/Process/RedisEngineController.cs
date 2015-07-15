@@ -1,7 +1,5 @@
 ﻿using System;
 
-using StackExchange.Redis;
-
 using Inversion.Data.Redis;
 using Inversion.Messaging.Extensions;
 using Inversion.Messaging.Model;
@@ -11,8 +9,6 @@ namespace Inversion.Messaging.Process
     public class RedisEngineController : RedisStore, IEngineController
     {
         public RedisEngineController(string connections, int databaseNumber) : base(connections, databaseNumber) { }
-
-        public RedisEngineController(ConnectionMultiplexer connectionMultiplexer, int databaseNumber) : base(connectionMultiplexer, databaseNumber) {}
 
         public void ReceiveCommand(string name, IEngineCommandReceiver engineCommandReceiver)
         {
@@ -24,7 +20,7 @@ namespace Inversion.Messaging.Process
                 (status.CurrentStatus != EngineStatus.Paused && status.DesiredStatus == EngineStatus.Paused) ||
                 (status.CurrentStatus != EngineStatus.Off && status.DesiredStatus == EngineStatus.Off))
             {
-                ProcessControlMessage(engineCommandReceiver, status);
+                engineCommandReceiver.ProcessControlMessage(status);
             }
         }
 
@@ -38,19 +34,6 @@ namespace Inversion.Messaging.Process
             status.Updated = DateTime.Now;
 
             this.Database.StringSet(name, status.ToJSON());
-        }
-
-        protected void ProcessControlMessage(IEngineCommandReceiver engineCommandReceiver, EngineControlStatus eventProcessingControl)
-        {
-            switch (eventProcessingControl.DesiredStatus)
-            {
-                case EngineStatus.Off: engineCommandReceiver.Shutdown();
-                    break;
-                case EngineStatus.Paused: engineCommandReceiver.Pause();
-                    break;
-                case EngineStatus.Working: engineCommandReceiver.Resume();
-                    break;
-            }
         }
 
         public void ForceStatus(string name, EngineControlStatus status)

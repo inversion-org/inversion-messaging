@@ -1,5 +1,4 @@
 ﻿using System;
-using StackExchange.Redis;
 
 using Inversion.Data.Redis;
 using Inversion.Messaging.Model;
@@ -16,8 +15,6 @@ namespace Inversion.Messaging.Transport
         {
             _queueName = queueName;
         }
-
-        public RedisTransport(ConnectionMultiplexer connectionMultiplexer, int databaseNumber) : base(connectionMultiplexer, databaseNumber) {}
 
         public void Push(IEvent ev)
         {
