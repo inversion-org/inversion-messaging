@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging", "Inversion.Messaging\Inversion.Messaging.csproj", "{18A7E8CB-CDB4-4846-8B5E-6E7D03178831}"
 EndProject
@@ -12,6 +12,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging.Sql", "Inversion.Messaging.Sql\Inversion.Messaging.Sql.csproj", "{A9A73BCC-F72D-4310-A701-29A69C12F708}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging.MsSql", "Inversion.Messaging.MsSql\Inversion.Messaging.MsSql.csproj", "{4A7E02C3-0159-4879-94A2-46C6F9D03986}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging.AmazonSQS", "Inversion.Messaging.AmazonSQS\Inversion.Messaging.AmazonSQS.csproj", "{F540919A-E5E3-40B9-B4FB-77973BE49C9C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging.DynamoDB", "Inversion.Messaging.DynamoDB\Inversion.Messaging.DynamoDB.csproj", "{C4B1107C-C235-4B89-A2B4-1E2ACF624505}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +43,14 @@ Global
 		{4A7E02C3-0159-4879-94A2-46C6F9D03986}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A7E02C3-0159-4879-94A2-46C6F9D03986}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A7E02C3-0159-4879-94A2-46C6F9D03986}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F540919A-E5E3-40B9-B4FB-77973BE49C9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F540919A-E5E3-40B9-B4FB-77973BE49C9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F540919A-E5E3-40B9-B4FB-77973BE49C9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F540919A-E5E3-40B9-B4FB-77973BE49C9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4B1107C-C235-4B89-A2B4-1E2ACF624505}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4B1107C-C235-4B89-A2B4-1E2ACF624505}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4B1107C-C235-4B89-A2B4-1E2ACF624505}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4B1107C-C235-4B89-A2B4-1E2ACF624505}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

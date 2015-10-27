@@ -33,6 +33,8 @@ namespace Inversion.Messaging.Process
 
         private readonly List<ActionBlock<Tuple<IEvent, bool>>> _enginePushBlocks = new List<ActionBlock<Tuple<IEvent, bool>>>();
 
+        private readonly List<TransformBlock<EngineStatus, IEvent>> _readers = new List<TransformBlock<EngineStatus, IEvent>>();
+
         protected List<bool> _readerSucceeded = new List<bool>();
         protected DateTime _mostRecentReaderSuccess = DateTime.MinValue;
 
@@ -190,14 +192,13 @@ namespace Inversion.Messaging.Process
                     _failure.Push(t.Item1);
                 });
 
-            List<TransformBlock<EngineStatus, IEvent>> readers = new List<TransformBlock<EngineStatus, IEvent>>();
             for (int x = 0; x < _config.NumberOfWorkerTasks; x++)
             {
                 TransformBlock<EngineStatus, IEvent> reader = this.MakeReadBlock(x);
                 broadcastBlock.LinkTo(reader);
                 reader.LinkTo(processBlock, ev => ev != null);
                 reader.LinkTo(new ActionBlock<IEvent>((ev) => _drained = true));
-                readers.Add(reader);
+                _readers.Add(reader);
                 _readerSucceeded.Add(false);
             }
 
