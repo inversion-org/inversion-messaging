@@ -60,6 +60,7 @@
     <Compile Include="Extensions\JsonEx.cs" />
     <Compile Include="Model\EngineControlStatus.cs" />
     <Compile Include="Model\MessagingEvent.cs" />
+    <Compile Include="Process\EngineUnifiedReader.cs" />
     <Compile Include="Process\EngineConfiguration.cs" />
     <Compile Include="Process\Engine.cs" />
     <Compile Include="Process\EngineStatus.cs" />

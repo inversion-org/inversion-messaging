@@ -10,6 +10,8 @@
         Working,
         WaitingForSlot,
         Stopping,
-        Paused
+        Paused,
+        Heartbeat,
+        Null
     }
 }
