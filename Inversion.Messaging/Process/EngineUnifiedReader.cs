@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,6 +38,8 @@ namespace Inversion.Messaging.Process
 
         protected List<bool> _readerSucceeded = new List<bool>();
         protected DateTime _mostRecentReaderSuccess = DateTime.MinValue;
+
+        protected static ConcurrentQueue<string> _errors = new ConcurrentQueue<string>();
 
         private Task _engineTask;
         private EngineStatus _desiredState;
@@ -139,13 +142,24 @@ namespace Inversion.Messaging.Process
 
                     if (engineStatus == EngineStatus.Working)
                     {
-                        ev = _incoming.Pop();
+                        try
+                        {
+                            ev = _incoming.Pop();
+                        }
+                        catch (Exception)
+                        {
+                            _readerSucceeded[myIndex] = false;
+                            return new Tuple<IEvent, bool>(null, false);
+                        }                      
+
+                        _readerSucceeded[myIndex] = (ev != null);
 
                         if (ev == null)
                         {
-                            _drained = true;
-                            return null;
+                            return new Tuple<IEvent, bool>(null, false);
                         }
+
+                        _startLatch = true;
                     }
                     else if (engineStatus == EngineStatus.Heartbeat)
                     {
@@ -154,17 +168,39 @@ namespace Inversion.Messaging.Process
                     }
                     else
                     {
-                        return null;
+                        return new Tuple<IEvent, bool>(null, false);
                     }
 
-                    _readerSucceeded[myIndex] = (ev != null);
-                    _startLatch = true;
+                    //Console.WriteLine(ev.ToJson());
 
-                    Console.WriteLine(ev.ToJson());
+                    Tuple<IEvent, bool> t = null;
 
-                    Tuple<IEvent, bool> t = new Tuple<IEvent, bool>(ev, ProcessEvent(ev));
+                    try
+                    {
+                        t = new Tuple<IEvent, bool>(ev, ProcessEvent(ev));
+                    }
+                    catch (Exception)
+                    {
+                        return new Tuple<IEvent, bool>(null, false);
+                    }
 
                     System.Threading.Interlocked.Increment(ref _totalProcessed);
+
+                    return t;
+                });
+        }
+
+        protected TransformBlock<EngineStatus, Tuple<IEvent, bool>> MakeHeartbeatProcessBlock()
+        {
+            return new TransformBlock<EngineStatus, Tuple<IEvent, bool>>(
+                (engineStatus) =>
+                {
+                    IEvent ev = new MessagingEvent(null, "engine::heartbeat", DateTime.Now,
+                            new Dictionary<string, string>());
+                    
+                    Tuple<IEvent, bool> t = new Tuple<IEvent, bool>(ev, ProcessEvent(ev));
+
+                    //System.Threading.Interlocked.Increment(ref _totalProcessed);
 
                     return t;
                 });
@@ -188,7 +224,7 @@ namespace Inversion.Messaging.Process
             ActionBlock<Tuple<IEvent, bool>> successBlock = new ActionBlock<Tuple<IEvent, bool>>(
                 (t) =>
                 {
-                    if (t.Item1.Message != "engine::heartbeat")
+                    if (t.Item1 != null && t.Item1.Message != "engine::heartbeat")
                     {
                         //Console.WriteLine("Pushing event to success");
                         _success.Push(t.Item1);
@@ -198,8 +234,11 @@ namespace Inversion.Messaging.Process
             ActionBlock<Tuple<IEvent, bool>> failedBlock = new ActionBlock<Tuple<IEvent, bool>>(
                 (t) =>
                 {
-                    //Console.WriteLine("Pushing event to failure");
-                    _failure.Push(t.Item1);
+                    if (t.Item1 != null)
+                    {
+                        //Console.WriteLine("Pushing event to failure");
+                        _failure.Push(t.Item1);
+                    }
                 });
 
             for (int x = 0; x < _config.NumberOfWorkerTasks; x++)
@@ -211,10 +250,12 @@ namespace Inversion.Messaging.Process
 
                 processBlock.LinkTo(successBlock, t => t.Item2);
                 processBlock.LinkTo(failedBlock, t => !t.Item2);
-
-                heartbeatBlock.LinkTo(processBlock, status => status != EngineStatus.Null);
-                heartbeatBlock.LinkTo(DataflowBlock.NullTarget<EngineStatus>());
             }
+
+            TransformBlock<EngineStatus, Tuple<IEvent, bool>> heartbeatProcessBlock = this.MakeHeartbeatProcessBlock();
+            heartbeatProcessBlock.LinkTo(DataflowBlock.NullTarget<Tuple<IEvent, bool>>());
+
+            heartbeatBlock.LinkTo(heartbeatProcessBlock, status => status != EngineStatus.Null);
 
             _engineChain = broadcastBlock;
             _engineHeartbeat = heartbeatBlock;
