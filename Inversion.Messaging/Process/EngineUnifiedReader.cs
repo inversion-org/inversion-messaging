@@ -8,6 +8,7 @@ using System.Threading.Tasks.Dataflow;
 
 using Inversion.Data;
 using Inversion.Messaging.Model;
+using Inversion.Messaging.Process.Context;
 using Inversion.Messaging.Transport;
 using Inversion.Process;
 using Inversion.Process.Behaviour;
@@ -140,7 +141,7 @@ namespace Inversion.Messaging.Process
 
                     IEvent ev = null;
 
-                    if (engineStatus == EngineStatus.Working)
+                    if (_currentStatus == EngineStatus.Working)
                     {
                         try
                         {
@@ -187,6 +188,9 @@ namespace Inversion.Messaging.Process
                     System.Threading.Interlocked.Increment(ref _totalProcessed);
 
                     return t;
+                }, new ExecutionDataflowBlockOptions
+                {
+                    BoundedCapacity = 1
                 });
         }
 
@@ -213,7 +217,7 @@ namespace Inversion.Messaging.Process
             var heartbeatBlock = new TransformBlock<EngineStatus, EngineStatus>(
                 (engineStatus) =>
                 {
-                    if (engineStatus == EngineStatus.Working)
+                    if (_currentStatus == EngineStatus.Working)
                     {
                         return EngineStatus.Heartbeat;
                     }
@@ -244,7 +248,10 @@ namespace Inversion.Messaging.Process
             for (int x = 0; x < _config.NumberOfWorkerTasks; x++)
             {
                 TransformBlock<EngineStatus, Tuple<IEvent, bool>> processBlock = this.MakeProcessBlock(x);
-                broadcastBlock.LinkTo(processBlock);
+                broadcastBlock.LinkTo(processBlock, new DataflowLinkOptions
+                {
+                    PropagateCompletion = true                    
+                });
                 _processors.Add(processBlock);
                 _readerSucceeded.Add(false);
 
@@ -473,7 +480,7 @@ namespace Inversion.Messaging.Process
         protected bool ProcessEvent(IEvent e)
         {
             // create a fresh context
-            ProcessContext context = new ProcessContext(_serviceContainer, _resourceAdapter);
+            TimedContext context = new TimedContext(_serviceContainer, _resourceAdapter);
 
             //Console.WriteLine("ProcessEvent {0}", e.Message);
 
