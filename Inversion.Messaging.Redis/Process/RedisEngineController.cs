@@ -12,33 +12,37 @@ namespace Inversion.Messaging.Process
 
         public void ReceiveCommand(string name, IEngineCommandReceiver engineCommandReceiver)
         {
-            string controlAsString = this.Database.StringGet(name);
+            string currentStatusAsString = this.Database.HashGet(name, "current");
+            string desiredStatusAsString = this.Database.HashGet(name, "desired");
 
-            EngineControlStatus status = controlAsString.FromJSON<EngineControlStatus>();
-
-            if (status.CurrentStatus != status.DesiredStatus ||
-                (status.CurrentStatus != EngineStatus.Paused && status.DesiredStatus == EngineStatus.Paused) ||
-                (status.CurrentStatus != EngineStatus.Off && status.DesiredStatus == EngineStatus.Off))
+            EngineStatus currentStatus = (EngineStatus) Convert.ToInt32(currentStatusAsString);
+            EngineStatus desiredStatus = (EngineStatus) Convert.ToInt32(desiredStatusAsString);
+            if (currentStatus != desiredStatus ||
+                (currentStatus != EngineStatus.Paused && desiredStatus == EngineStatus.Paused) ||
+                (currentStatus != EngineStatus.Off && desiredStatus == EngineStatus.Off))
             {
-                engineCommandReceiver.ProcessControlMessage(status);
+                engineCommandReceiver.ProcessControlMessage(new EngineControlStatus
+                {
+                    CurrentStatus = currentStatus,
+                    DesiredStatus = desiredStatus,
+                    Updated = DateTime.Now,
+                    Name = name
+                });
             }
         }
 
         public void UpdateCurrentStatus(string name, EngineStatus currentStatus)
         {
-            string controlAsString = this.Database.StringGet(name);
-
-            EngineControlStatus status = controlAsString.FromJSON<EngineControlStatus>();
-
-            status.CurrentStatus = currentStatus;
-            status.Updated = DateTime.Now;
-
-            this.Database.StringSet(name, status.ToJSON());
+            this.Database.HashSet(name, "current", ((int) currentStatus).ToString());
+            this.Database.HashSet(name, "updated", DateTime.Now.ToString("o"));
         }
 
         public void ForceStatus(string name, EngineControlStatus status)
         {
-            this.Database.StringSet(name, status.ToJSON());
+            this.Database.HashSet(name, "current", ((int) status.CurrentStatus).ToString());
+            this.Database.HashSet(name, "desired", ((int) status.DesiredStatus).ToString());
+            this.Database.HashSet(name, "name", name);
+            this.Database.HashSet(name, "updated", DateTime.Now.ToString("o"));
         }
     }
 }

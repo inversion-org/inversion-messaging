@@ -129,7 +129,28 @@ namespace Inversion.Messaging.Process
 
             Initialise();
 
-            _engineTask = Task.Factory.StartNew(Run);
+            if (ApplicationStartup())
+            {
+                _engineTask = Task.Factory.StartNew(Run);
+            }
+        }
+
+        protected bool ApplicationStartup()
+        {
+            // create a fresh context
+            TimedContext context = new TimedContext(_serviceContainer, _resourceAdapter);
+
+            IList<IProcessBehaviour> behaviours =
+                context.Services.GetService<List<IProcessBehaviour>>("application-behaviours");
+
+            // register them on the context message bus
+            context.Register(behaviours);
+
+            // construct a new event with our fresh context, the source event's message and parameters
+            // then fire the event - this will perform the actual behavioural work
+            IEvent thisEvent = new Event(context, "application-start").Fire();
+
+            return !context.Errors.Any();
         }
 
         protected TransformBlock<EngineStatus, Tuple<IEvent, bool>> MakeProcessBlock(int index)
@@ -190,7 +211,8 @@ namespace Inversion.Messaging.Process
                     return t;
                 }, new ExecutionDataflowBlockOptions
                 {
-                    BoundedCapacity = 1
+                    BoundedCapacity = 1,
+                    MaxDegreeOfParallelism = 1
                 });
         }
 
@@ -207,6 +229,9 @@ namespace Inversion.Messaging.Process
                     //System.Threading.Interlocked.Increment(ref _totalProcessed);
 
                     return t;
+                }, new ExecutionDataflowBlockOptions
+                {
+                    MaxDegreeOfParallelism = 1
                 });
         }
 
@@ -250,7 +275,7 @@ namespace Inversion.Messaging.Process
                 TransformBlock<EngineStatus, Tuple<IEvent, bool>> processBlock = this.MakeProcessBlock(x);
                 broadcastBlock.LinkTo(processBlock, new DataflowLinkOptions
                 {
-                    PropagateCompletion = true                    
+                    PropagateCompletion = true
                 });
                 _processors.Add(processBlock);
                 _readerSucceeded.Add(false);
@@ -508,7 +533,7 @@ namespace Inversion.Messaging.Process
                 IEvent thisEvent = new MessagingEvent(context, e.Message, eventCreated, e.Params).Fire();
 
                 // escalate any errors
-                if (thisEvent.HasParams("_failed"))
+                if (thisEvent.HasParams("_failed") || thisEvent.Context.Errors.Any())
                 {
                     string exceptionDetail = String.Join("\n", context.Errors);
                     e.Params.Add("event::exception", exceptionDetail);
