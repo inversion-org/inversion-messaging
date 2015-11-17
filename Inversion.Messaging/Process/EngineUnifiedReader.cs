@@ -23,6 +23,8 @@ namespace Inversion.Messaging.Process
     /// </summary>
     public class EngineUnifiedReader : StoreBase, IEngineCommandReceiver, IEngine
     {
+        private static readonly object _sync = new object();
+
         private readonly ITransport _incoming;
         private readonly ITransport _success;
         private readonly ITransport _failure;
@@ -98,28 +100,37 @@ namespace Inversion.Messaging.Process
         /// </summary>
         public override void Start()
         {
-            _currentStatus = EngineStatus.Starting;
+            if (!this.HasStarted)
+            {
+                lock (_sync)
+                {
+                    if (!this.HasStarted)
+                    {
+                        _currentStatus = EngineStatus.Starting;
 
-            _desiredState = EngineStatus.Working;
+                        _desiredState = EngineStatus.Working;
 
-            if (!_incoming.HasStarted)
-            {
-                _incoming.Start();
-            }
-            if (!_success.HasStarted)
-            {
-                _success.Start();
-            }
-            if (!_failure.HasStarted)
-            {
-                _failure.Start();
-            }
-            if (!_control.HasStarted)
-            {
-                _control.Start();
-            }
+                        if (!_incoming.HasStarted)
+                        {
+                            _incoming.Start();
+                        }
+                        if (!_success.HasStarted)
+                        {
+                            _success.Start();
+                        }
+                        if (!_failure.HasStarted)
+                        {
+                            _failure.Start();
+                        }
+                        if (!_control.HasStarted)
+                        {
+                            _control.Start();
+                        }
 
-            base.Start();
+                        base.Start();
+                    }
+                }
+            }
         }
 
         public void Process(IServiceContainer serviceContainer, IResourceAdapter resourceAdapter)
@@ -131,7 +142,16 @@ namespace Inversion.Messaging.Process
 
             if (ApplicationStartup())
             {
-                _engineTask = Task.Factory.StartNew(Run);
+                if (_engineTask == null)
+                {
+                    lock (_sync)
+                    {
+                        if (_engineTask == null)
+                        {
+                            _engineTask = Task.Factory.StartNew(Run);
+                        }                        
+                    }
+                }
             }
         }
 
@@ -294,22 +314,27 @@ namespace Inversion.Messaging.Process
 
             _enginePushBlocks.Add(successBlock);
             _enginePushBlocks.Add(failedBlock);
-
-            StartControlHandler();
         }
 
-        protected void StartControlHandler()
+        protected bool StartControlHandler()
         {
             // give the control a chance to pause us or stop us before we begin processing
             _control.ReceiveCommand(_config.ControlName, this);
 
             _control.UpdateCurrentStatus(_config.ControlName, _currentStatus);
 
+            if (_desiredState == EngineStatus.Off)
+            {
+                return false;
+            }
+
             SendHeartbeat();
 
             // now begin the task normally
             _runControlHandler = true;
             _controlTask = Task.Factory.StartNew(ControlHandler, TaskCreationOptions.LongRunning);
+
+            return true;
         }
 
         protected void ShutdownControlHandler()
@@ -391,6 +416,11 @@ namespace Inversion.Messaging.Process
         /// </summary>
         protected void Run()
         {
+            if (!StartControlHandler())
+            {
+                return;
+            }
+
             // set initial engine state
             _currentStatus = EngineStatus.Working;
 
