@@ -77,13 +77,13 @@
     <Compile Include="Model\EngineControlStatus.cs" />
     <Compile Include="Model\MessagingEvent.cs" />
     <Compile Include="Process\Context\TimedContext.cs" />
-    <Compile Include="Process\EngineUnifiedReader.cs" />
-    <Compile Include="Process\EngineConfiguration.cs" />
     <Compile Include="Process\Engine.cs" />
+    <Compile Include="Process\EngineConfiguration.cs" />
     <Compile Include="Process\EngineStatus.cs" />
     <Compile Include="Process\IEngine.cs" />
     <Compile Include="Process\IEngineCommandReceiver.cs" />
     <Compile Include="Process\IEngineController.cs" />
+    <Compile Include="Process\IMachineNameProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transport\IPeek.cs" />
     <Compile Include="Transport\IPop.cs" />

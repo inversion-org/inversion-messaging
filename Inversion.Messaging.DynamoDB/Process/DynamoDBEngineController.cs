@@ -10,8 +10,9 @@ namespace Inversion.Messaging.Process
     {
         public DynamoDBEngineController(string serviceUrl, string accessKey, string accessSecret) : base(serviceUrl, accessKey, accessSecret) {}
 
-        public void ReceiveCommand(string name, IEngineCommandReceiver engineCommandReceiver)
+        public void ReceiveCommand(string name, IEngineCommandReceiver engineCommandReceiver, EngineStatus currentStatus)
         {
+            // TODO: modify this to use the passed current status of engine
             DynamoDBEngineControlStatus source = this.Context.Load<DynamoDBEngineControlStatus>(name);
 
             EngineControlStatus status = source.ToModel();
@@ -34,6 +35,11 @@ namespace Inversion.Messaging.Process
             status.Updated = DateTime.Now;
 
             this.Context.Save<DynamoDBEngineControlStatus>(new DynamoDBEngineControlStatus(status));
+        }
+
+        public void UpdateDesiredStatus(string name, EngineStatus desiredStatus)
+        {
+            throw new NotImplementedException();
         }
 
         public void ForceStatus(string name, EngineControlStatus status)

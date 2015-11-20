@@ -17,8 +17,9 @@ namespace Inversion.Messaging.Process
         protected SqlEngineController(string connStr) : base(SqlClientFactory.Instance, connStr) { }
         protected SqlEngineController(DbProviderFactory instance, string connStr) : base(instance, connStr) { }
 
-        public void ReceiveCommand(string name, IEngineCommandReceiver engineCommandReceiver)
+        public void ReceiveCommand(string name, IEngineCommandReceiver engineCommandReceiver, EngineStatus currentStatus)
         {
+            // TODO: change mechanism to use the passed current status from engine.
             using (IDataReader dataReader = this.Read(this.ReceiveCommandQuery, _parameter("@name", name)))
             {
                 if (dataReader.Read())
@@ -43,6 +44,11 @@ namespace Inversion.Messaging.Process
                 _parameter("@currentstatus", currentStatus.ToString().ToLower()),
                 _parameter("@date", DateTime.Now)
             );
+        }
+
+        public void UpdateDesiredStatus(string name, EngineStatus desiredStatus)
+        {
+            throw new NotImplementedException();
         }
 
         public void ForceStatus(string name, EngineControlStatus status)

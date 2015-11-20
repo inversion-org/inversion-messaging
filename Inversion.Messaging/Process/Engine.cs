@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using System.Threading.Tasks.Dataflow;
 
 using Inversion.Data;
 using Inversion.Messaging.Model;
+using Inversion.Messaging.Process.Context;
 using Inversion.Messaging.Transport;
 using Inversion.Process;
 using Inversion.Process.Behaviour;
@@ -21,6 +23,8 @@ namespace Inversion.Messaging.Process
     /// </summary>
     public class Engine : StoreBase, IEngineCommandReceiver, IEngine
     {
+        private static readonly object _sync = new object();
+
         private readonly ITransport _incoming;
         private readonly ITransport _success;
         private readonly ITransport _failure;
@@ -29,14 +33,16 @@ namespace Inversion.Messaging.Process
         private ITargetBlock<EngineStatus> _engineChain;
         private ITargetBlock<EngineStatus> _engineHeartbeat;
 
-        private TransformBlock<IEvent, Tuple<IEvent, bool>> _engineProcessBlock;
+        //private TransformBlock<IEvent, Tuple<IEvent, bool>> _engineProcessBlock;
 
         private readonly List<ActionBlock<Tuple<IEvent, bool>>> _enginePushBlocks = new List<ActionBlock<Tuple<IEvent, bool>>>();
 
-        private readonly List<TransformBlock<EngineStatus, IEvent>> _readers = new List<TransformBlock<EngineStatus, IEvent>>();
+        private readonly List<TransformBlock<EngineStatus, Tuple<IEvent, bool>>> _processors = new List<TransformBlock<EngineStatus, Tuple<IEvent, bool>>>();
 
         protected List<bool> _readerSucceeded = new List<bool>();
         protected DateTime _mostRecentReaderSuccess = DateTime.MinValue;
+
+        protected static ConcurrentQueue<string> _errors = new ConcurrentQueue<string>();
 
         private Task _engineTask;
         private EngineStatus _desiredState;
@@ -94,28 +100,37 @@ namespace Inversion.Messaging.Process
         /// </summary>
         public override void Start()
         {
-            _currentStatus = EngineStatus.Starting;
+            if (!this.HasStarted)
+            {
+                lock (_sync)
+                {
+                    if (!this.HasStarted)
+                    {
+                        _currentStatus = EngineStatus.Starting;
 
-            _desiredState = EngineStatus.Working;
+                        _desiredState = EngineStatus.Working;
 
-            if (!_incoming.HasStarted)
-            {
-                _incoming.Start();
-            }
-            if (!_success.HasStarted)
-            {
-                _success.Start();
-            }
-            if (!_failure.HasStarted)
-            {
-                _failure.Start();
-            }
-            if (!_control.HasStarted)
-            {
-                _control.Start();
-            }
+                        if (!_incoming.HasStarted)
+                        {
+                            _incoming.Start();
+                        }
+                        if (!_success.HasStarted)
+                        {
+                            _success.Start();
+                        }
+                        if (!_failure.HasStarted)
+                        {
+                            _failure.Start();
+                        }
+                        if (!_control.HasStarted)
+                        {
+                            _control.Start();
+                        }
 
-            base.Start();
+                        base.Start();
+                    }
+                }
+            }
         }
 
         public void Process(IServiceContainer serviceContainer, IResourceAdapter resourceAdapter)
@@ -125,23 +140,118 @@ namespace Inversion.Messaging.Process
 
             Initialise();
 
-            _engineTask = Task.Factory.StartNew(Run);
+            if (ApplicationStartup())
+            {
+                if (_engineTask == null)
+                {
+                    lock (_sync)
+                    {
+                        if (_engineTask == null)
+                        {
+                            _engineTask = Task.Factory.StartNew(Run);
+                        }                        
+                    }
+                }
+            }
         }
 
-        protected TransformBlock<EngineStatus, IEvent> MakeReadBlock(int index)
+        protected bool ApplicationStartup()
         {
-            return new TransformBlock<EngineStatus, IEvent>(
+            // create a fresh context
+            TimedContext context = new TimedContext(_serviceContainer, _resourceAdapter);
+
+            IList<IProcessBehaviour> behaviours =
+                context.Services.GetService<List<IProcessBehaviour>>("application-behaviours");
+
+            // register them on the context message bus
+            context.Register(behaviours);
+
+            // construct a new event with our fresh context, the source event's message and parameters
+            // then fire the event - this will perform the actual behavioural work
+            IEvent thisEvent = new Event(context, "application-start").Fire();
+
+            return !context.Errors.Any();
+        }
+
+        protected TransformBlock<EngineStatus, Tuple<IEvent, bool>> MakeProcessBlock(int index)
+        {
+            return new TransformBlock<EngineStatus, Tuple<IEvent, bool>>(
                 (engineStatus) =>
                 {
                     int myIndex = index;
+
+                    IEvent ev = null;
+
                     if (_currentStatus == EngineStatus.Working)
                     {
-                        IEvent result = _incoming.Pop();
-                        _readerSucceeded[myIndex] = (result != null);
-                        return result;
+                        try
+                        {
+                            ev = _incoming.Pop();
+                        }
+                        catch (Exception)
+                        {
+                            _readerSucceeded[myIndex] = false;
+                            return new Tuple<IEvent, bool>(null, false);
+                        }                      
+
+                        _readerSucceeded[myIndex] = (ev != null);
+
+                        if (ev == null)
+                        {
+                            return new Tuple<IEvent, bool>(null, false);
+                        }
+
+                        _startLatch = true;
+                    }
+                    else if (engineStatus == EngineStatus.Heartbeat)
+                    {
+                        ev = new MessagingEvent(null, "engine::heartbeat", DateTime.Now,
+                            new Dictionary<string, string>());
+                    }
+                    else
+                    {
+                        return new Tuple<IEvent, bool>(null, false);
                     }
 
-                    return null;
+                    //Console.WriteLine(ev.ToJson());
+
+                    Tuple<IEvent, bool> t = null;
+
+                    try
+                    {
+                        t = new Tuple<IEvent, bool>(ev, ProcessEvent(ev));
+                    }
+                    catch (Exception)
+                    {
+                        return new Tuple<IEvent, bool>(null, false);
+                    }
+
+                    System.Threading.Interlocked.Increment(ref _totalProcessed);
+
+                    return t;
+                }, new ExecutionDataflowBlockOptions
+                {
+                    BoundedCapacity = 1,
+                    MaxDegreeOfParallelism = 1
+                });
+        }
+
+        protected TransformBlock<EngineStatus, Tuple<IEvent, bool>> MakeHeartbeatProcessBlock()
+        {
+            return new TransformBlock<EngineStatus, Tuple<IEvent, bool>>(
+                (engineStatus) =>
+                {
+                    IEvent ev = new MessagingEvent(null, "engine::heartbeat", DateTime.Now,
+                            new Dictionary<string, string>());
+                    
+                    Tuple<IEvent, bool> t = new Tuple<IEvent, bool>(ev, ProcessEvent(ev));
+
+                    //System.Threading.Interlocked.Increment(ref _totalProcessed);
+
+                    return t;
+                }, new ExecutionDataflowBlockOptions
+                {
+                    MaxDegreeOfParallelism = 1
                 });
         }
 
@@ -149,38 +259,24 @@ namespace Inversion.Messaging.Process
         {
             BroadcastBlock<EngineStatus> broadcastBlock = new BroadcastBlock<EngineStatus>(engineStatus => engineStatus);
 
-            TransformBlock<EngineStatus, IEvent> heartbeatBlock = new TransformBlock<EngineStatus, IEvent>(
+            var heartbeatBlock = new TransformBlock<EngineStatus, EngineStatus>(
                 (engineStatus) =>
                 {
                     if (_currentStatus == EngineStatus.Working)
                     {
-                        return new MessagingEvent(null, "engine::heartbeat", DateTime.Now,
-                            new Dictionary<string, string>());
+                        return EngineStatus.Heartbeat;
                     }
 
-                    return null;
-                });
-
-            TransformBlock<IEvent, Tuple<IEvent, bool>> processBlock = new TransformBlock<IEvent, Tuple<IEvent, bool>>(
-                (ev) =>
-                {
-                    _startLatch = true;
-
-                    //Console.WriteLine(ev.ToJson());
-
-                    Tuple<IEvent, bool> t = new Tuple<IEvent, bool>(ev, ProcessEvent(ev));
-
-                    System.Threading.Interlocked.Increment(ref _totalProcessed);
-
-                    return t;
+                    return EngineStatus.Null;
                 });
 
             ActionBlock<Tuple<IEvent, bool>> successBlock = new ActionBlock<Tuple<IEvent, bool>>(
                 (t) =>
                 {
-                    if (t.Item1.Message != "engine::heartbeat")
+                    if (t.Item1 != null && t.Item1.Message != "engine::heartbeat")
                     {
                         //Console.WriteLine("Pushing event to success");
+                        t.Item1.Params["_pushed"] = DateTime.Now.ToString("o");
                         _success.Push(t.Item1);
                     }
                 });
@@ -188,48 +284,59 @@ namespace Inversion.Messaging.Process
             ActionBlock<Tuple<IEvent, bool>> failedBlock = new ActionBlock<Tuple<IEvent, bool>>(
                 (t) =>
                 {
-                    //Console.WriteLine("Pushing event to failure");
-                    _failure.Push(t.Item1);
+                    if (t.Item1 != null)
+                    {
+                        //Console.WriteLine("Pushing event to failure");
+                        t.Item1.Params["_pushed"] = DateTime.Now.ToString("o");
+                        _failure.Push(t.Item1);
+                    }
                 });
 
             for (int x = 0; x < _config.NumberOfWorkerTasks; x++)
             {
-                TransformBlock<EngineStatus, IEvent> reader = this.MakeReadBlock(x);
-                broadcastBlock.LinkTo(reader);
-                reader.LinkTo(processBlock, ev => ev != null);
-                reader.LinkTo(new ActionBlock<IEvent>((ev) => _drained = true));
-                _readers.Add(reader);
+                TransformBlock<EngineStatus, Tuple<IEvent, bool>> processBlock = this.MakeProcessBlock(x);
+                broadcastBlock.LinkTo(processBlock, new DataflowLinkOptions
+                {
+                    PropagateCompletion = true
+                });
+                _processors.Add(processBlock);
                 _readerSucceeded.Add(false);
+
+                processBlock.LinkTo(successBlock, t => t.Item2);
+                processBlock.LinkTo(failedBlock, t => !t.Item2);
             }
 
-            heartbeatBlock.LinkTo(processBlock, ev => ev != null);
-            heartbeatBlock.LinkTo(DataflowBlock.NullTarget<IEvent>());
+            TransformBlock<EngineStatus, Tuple<IEvent, bool>> heartbeatProcessBlock = this.MakeHeartbeatProcessBlock();
+            heartbeatProcessBlock.LinkTo(DataflowBlock.NullTarget<Tuple<IEvent, bool>>());
 
-            processBlock.LinkTo(successBlock, t => t.Item2);
-            processBlock.LinkTo(failedBlock, t => !t.Item2);
+            heartbeatBlock.LinkTo(heartbeatProcessBlock, status => status != EngineStatus.Null);
 
             _engineChain = broadcastBlock;
             _engineHeartbeat = heartbeatBlock;
 
-            _engineProcessBlock = processBlock;
             _enginePushBlocks.Add(successBlock);
             _enginePushBlocks.Add(failedBlock);
-
-            StartControlHandler();
         }
 
-        protected void StartControlHandler()
+        protected bool StartControlHandler()
         {
             // give the control a chance to pause us or stop us before we begin processing
-            _control.ReceiveCommand(_config.ControlName, this);
+            _control.ReceiveCommand(_config.ControlName, this, _currentStatus);
 
             _control.UpdateCurrentStatus(_config.ControlName, _currentStatus);
+
+            if (_desiredState == EngineStatus.Off)
+            {
+                return false;
+            }
 
             SendHeartbeat();
 
             // now begin the task normally
             _runControlHandler = true;
             _controlTask = Task.Factory.StartNew(ControlHandler, TaskCreationOptions.LongRunning);
+
+            return true;
         }
 
         protected void ShutdownControlHandler()
@@ -311,6 +418,11 @@ namespace Inversion.Messaging.Process
         /// </summary>
         protected void Run()
         {
+            if (!StartControlHandler())
+            {
+                return;
+            }
+
             // set initial engine state
             _currentStatus = EngineStatus.Working;
 
@@ -367,8 +479,7 @@ namespace Inversion.Messaging.Process
             bool blocksStillHaveInput = true;
             while (blocksStillHaveInput)
             {
-                blocksStillHaveInput = _engineProcessBlock.InputCount > 0 ||
-                                       _enginePushBlocks.Any(b => b.InputCount > 0);
+                blocksStillHaveInput = _enginePushBlocks.Any(b => b.InputCount > 0);
                 System.Threading.Thread.Sleep(_config.EngineMinimumYieldTime);
             }
 
@@ -401,7 +512,7 @@ namespace Inversion.Messaging.Process
             while (_runControlHandler)
             {
                 _control.UpdateCurrentStatus(_config.ControlName, _currentStatus);
-                _control.ReceiveCommand(_config.ControlName, this);
+                _control.ReceiveCommand(_config.ControlName, this, _currentStatus);
 
                 SendHeartbeat();
 
@@ -426,7 +537,7 @@ namespace Inversion.Messaging.Process
         protected bool ProcessEvent(IEvent e)
         {
             // create a fresh context
-            ProcessContext context = new ProcessContext(_serviceContainer, _resourceAdapter);
+            TimedContext context = new TimedContext(_serviceContainer, _resourceAdapter);
 
             //Console.WriteLine("ProcessEvent {0}", e.Message);
 
@@ -454,7 +565,7 @@ namespace Inversion.Messaging.Process
                 IEvent thisEvent = new MessagingEvent(context, e.Message, eventCreated, e.Params).Fire();
 
                 // escalate any errors
-                if (thisEvent.HasParams("_failed"))
+                if (thisEvent.HasParams("_failed") || thisEvent.Context.Errors.Any())
                 {
                     string exceptionDetail = String.Join("\n", context.Errors);
                     e.Params.Add("event::exception", exceptionDetail);

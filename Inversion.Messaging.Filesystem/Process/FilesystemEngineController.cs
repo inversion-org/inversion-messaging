@@ -28,8 +28,10 @@ namespace Inversion.Messaging.Process
             // nothing to do
         }
 
-        public void ReceiveCommand(string name, IEngineCommandReceiver engineCommandReceiver)
+        public void ReceiveCommand(string name, IEngineCommandReceiver engineCommandReceiver, EngineStatus currentStatus)
         {
+            // TODO: modify this to use the passed current status of engine
+
             EngineControlStatus status = new EngineControlStatus
             {
                 CurrentStatus = EngineStatus.Paused,
@@ -65,6 +67,10 @@ namespace Inversion.Messaging.Process
             File.WriteAllText(Path.Combine(_baseFolder, String.Concat(name, "-current-status.txt")), currentStatus.ToString());
         }
 
+        public void UpdateDesiredStatus(string name, EngineStatus desiredStatus)
+        {
+            throw new NotImplementedException();
+        }
         public void ForceStatus(string name, EngineControlStatus status)
         {
             this.UpdateCurrentStatus(name, status.CurrentStatus);
