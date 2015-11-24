@@ -75,6 +75,7 @@
     <Compile Include="Extensions\IEngineCommandReceiverEx.cs" />
     <Compile Include="Extensions\JsonEx.cs" />
     <Compile Include="Model\EngineControlStatus.cs" />
+    <Compile Include="Model\EngineOverview.cs" />
     <Compile Include="Model\MessagingEvent.cs" />
     <Compile Include="Process\Context\TimedContext.cs" />
     <Compile Include="Process\Engine.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="Process\IEngine.cs" />
     <Compile Include="Process\IEngineCommandReceiver.cs" />
     <Compile Include="Process\IEngineController.cs" />
+    <Compile Include="Process\IEngineOverviewStore.cs" />
     <Compile Include="Process\IMachineNameProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transport\IPeek.cs" />

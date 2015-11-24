@@ -1,21 +1,14 @@
 ﻿using System;
 
-using Inversion.Data.Redis;
 using Inversion.Messaging.Extensions;
 using Inversion.Messaging.Model;
-using StackExchange.Redis;
 
 namespace Inversion.Messaging.Process
 {
-    public class RedisEngineController : RedisStore, IEngineController
+    public class RedisEngineController : RedisEngineStore, IEngineController
     {
-        private readonly IMachineNameProvider _machineNameProvider;
-
-        public RedisEngineController(string connections, int databaseNumber, IMachineNameProvider machineNameProvider)
-            : base(connections, databaseNumber)
-        {
-            _machineNameProvider = machineNameProvider;
-        }
+        public RedisEngineController(string connections, int databaseNumber, IMachineNameProvider machineNameProvider, TimeSpan statusExpiry)
+            : base(connections, databaseNumber, machineNameProvider, statusExpiry) {}
 
         public void ReceiveCommand(string name, IEngineCommandReceiver engineCommandReceiver, EngineStatus currentStatus)
         {
@@ -51,58 +44,9 @@ namespace Inversion.Messaging.Process
             this.SetDesiredStatus(name, status.DesiredStatus);
         }
 
-        protected EngineStatus GetCurrentStatus(string name)
+        public void UpdateGlobalDesiredStatus(string name, EngineStatus desiredStatus)
         {
-            string key = this.GetMachineStatusKey(name);
-
-            return (EngineStatus) Convert.ToInt32(this.Database.HashGet(key, "current"));
-        }
-
-        protected EngineStatus GetDesiredStatus(string name)
-        {
-            string globalKey = this.GetGlobalStatusKey(name);
-            string machineKey = this.GetMachineStatusKey(name);
-
-            EngineStatus globalStatus = (EngineStatus) Convert.ToInt32(this.Database.HashGet(globalKey, "desired"));
-
-            if (globalStatus == EngineStatus.Off || globalStatus == EngineStatus.Paused)
-            {
-                return globalStatus;
-            }
-
-            EngineStatus machineStatus = (EngineStatus)Convert.ToInt32(this.Database.HashGet(machineKey, "desired"));
-
-            return machineStatus;
-        }
-
-        protected void SetCurrentStatus(string name, EngineStatus status)
-        {
-            string key = this.GetMachineStatusKey(name);
-
-            this.Database.HashSet(key,
-                new HashEntry[]
-                {
-                    new HashEntry("current", ((int) status).ToString()),
-                    new HashEntry("updated", DateTime.Now.ToString("o"))
-                });
-        }
-
-        protected void SetDesiredStatus(string name, EngineStatus status)
-        {
-            string machineKey = this.GetMachineStatusKey(name);
-
-            this.Database.HashSet(machineKey, "desired", ((int) status).ToString());
-        }
-
-        protected string GetMachineStatusKey(string name)
-        {
-            string machineName = _machineNameProvider.Get() ?? Environment.MachineName;
-            return String.Format("engine:{0}@{1}", name, machineName);
-        }
-
-        protected string GetGlobalStatusKey(string name)
-        {
-            return name;
+            this.SetGlobalDesiredStatus(name, desiredStatus);
         }
     }
 }

@@ -28,5 +28,10 @@ namespace Inversion.Messaging.Process
         {
             throw new NotImplementedException();
         }
+
+        public void UpdateGlobalDesiredStatus(string name, EngineStatus desiredStatus)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -347,7 +347,7 @@ namespace Inversion.Messaging.Process
             // wait for it to complete
             _controlTask.Wait();
 
-            // update our status (should be EngineStatus.Stopping)
+            // update our status (should be EngineStatus.Off)
             _control.UpdateCurrentStatus(_config.ControlName, _currentStatus);
         }
 
@@ -482,6 +482,8 @@ namespace Inversion.Messaging.Process
                 blocksStillHaveInput = _enginePushBlocks.Any(b => b.InputCount > 0);
                 System.Threading.Thread.Sleep(_config.EngineMinimumYieldTime);
             }
+
+            _currentStatus = EngineStatus.Off;
 
             //ShutdownPushHandler();
             ShutdownControlHandler();

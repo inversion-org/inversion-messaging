@@ -51,5 +51,10 @@ namespace Inversion.Messaging.Process
 
             this.Context.Save<DynamoDBEngineControlStatus>(new DynamoDBEngineControlStatus(status));
         }
+
+        public void UpdateGlobalDesiredStatus(string name, EngineStatus desiredStatus)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

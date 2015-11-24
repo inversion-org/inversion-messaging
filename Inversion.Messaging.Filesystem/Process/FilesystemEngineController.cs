@@ -76,5 +76,10 @@ namespace Inversion.Messaging.Process
             this.UpdateCurrentStatus(name, status.CurrentStatus);
             File.WriteAllText(Path.Combine(_baseFolder, String.Concat(name, "-desired-status.txt")), status.DesiredStatus.ToString());
         }
+
+        public void UpdateGlobalDesiredStatus(string name, EngineStatus desiredStatus)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -9,5 +9,6 @@ namespace Inversion.Messaging.Process
         void UpdateCurrentStatus(string name, EngineStatus currentStatus);
         void UpdateDesiredStatus(string name, EngineStatus desiredStatus);
         void ForceStatus(string name, EngineControlStatus status);
+        void UpdateGlobalDesiredStatus(string name, EngineStatus desiredStatus);
     }
 }

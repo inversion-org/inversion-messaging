@@ -61,6 +61,11 @@ namespace Inversion.Messaging.Process
             );
         }
 
+        public void UpdateGlobalDesiredStatus(string name, EngineStatus desiredStatus)
+        {
+            throw new NotImplementedException();
+        }
+
         protected EngineControlStatus Read(IDataReader dataReader)
         {
             // TODO: get rid of the Enum.Parse as it uses reflection, move to either a switch or a dictionary lookup
