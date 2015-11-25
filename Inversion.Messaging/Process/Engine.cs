@@ -81,16 +81,23 @@ namespace Inversion.Messaging.Process
         private IServiceContainer _serviceContainer;
         private IResourceAdapter _resourceAdapter;
 
-        public Engine(ITransport incoming, ITransport success, ITransport failure, IEngineController control) :
-            this(incoming, success, failure, control, new EngineConfiguration()) { }
+        private ILoggingStore _logger;
 
-        public Engine(ITransport incoming, ITransport success, ITransport failure, IEngineController control, EngineConfiguration configuration)
+        public Engine(ITransport incoming, ITransport success, ITransport failure, IEngineController control) :
+            this(incoming, success, failure, control, new EngineConfiguration(), null) { }
+
+        public Engine(
+            ITransport incoming, ITransport success, ITransport failure,
+            IEngineController control,
+            EngineConfiguration configuration,
+            ILoggingStore logger = null)
         {
             _incoming = incoming;
             _success = success;
             _failure = failure;
             _control = control;
             _config = configuration;
+            _logger = logger;
         }
 
         /// <summary>
@@ -126,6 +133,10 @@ namespace Inversion.Messaging.Process
                         {
                             _control.Start();
                         }
+                        if (!_logger.HasStarted)
+                        {
+                            _logger.Start();
+                        }
 
                         base.Start();
                     }
@@ -157,8 +168,12 @@ namespace Inversion.Messaging.Process
 
         protected bool ApplicationStartup()
         {
+            this.Log("engine", "ApplicationStartup");
+
             // create a fresh context
-            TimedContext context = new TimedContext(_serviceContainer, _resourceAdapter);
+            IProcessContext context = (_logger != null)
+                ? new TimedLoggingContext(_serviceContainer, _resourceAdapter, _logger)
+                : new TimedContext(_serviceContainer, _resourceAdapter);
 
             IList<IProcessBehaviour> behaviours =
                 context.Services.GetService<List<IProcessBehaviour>>("application-behaviours");
@@ -169,6 +184,28 @@ namespace Inversion.Messaging.Process
             // construct a new event with our fresh context, the source event's message and parameters
             // then fire the event - this will perform the actual behavioural work
             IEvent thisEvent = new Event(context, "application-start").Fire();
+
+            return !context.Errors.Any();
+        }
+
+        protected bool ApplicationShutdown()
+        {
+            this.Log("engine", "ApplicationShutdown");
+
+            // create a fresh context
+            IProcessContext context = (_logger != null)
+                ? new TimedLoggingContext(_serviceContainer, _resourceAdapter, _logger)
+                : new TimedContext(_serviceContainer, _resourceAdapter);
+
+            IList<IProcessBehaviour> behaviours =
+                context.Services.GetService<List<IProcessBehaviour>>("application-behaviours");
+
+            // register them on the context message bus
+            context.Register(behaviours);
+
+            // construct a new event with our fresh context, the source event's message and parameters
+            // then fire the event - this will perform the actual behavioural work
+            IEvent thisEvent = new Event(context, "application-shutdown").Fire();
 
             return !context.Errors.Any();
         }
@@ -236,25 +273,6 @@ namespace Inversion.Messaging.Process
                 });
         }
 
-        protected TransformBlock<EngineStatus, Tuple<IEvent, bool>> MakeHeartbeatProcessBlock()
-        {
-            return new TransformBlock<EngineStatus, Tuple<IEvent, bool>>(
-                (engineStatus) =>
-                {
-                    IEvent ev = new MessagingEvent(null, "engine::heartbeat", DateTime.Now,
-                            new Dictionary<string, string>());
-                    
-                    Tuple<IEvent, bool> t = new Tuple<IEvent, bool>(ev, ProcessEvent(ev));
-
-                    //System.Threading.Interlocked.Increment(ref _totalProcessed);
-
-                    return t;
-                }, new ExecutionDataflowBlockOptions
-                {
-                    MaxDegreeOfParallelism = 1
-                });
-        }
-
         protected void Initialise()
         {
             BroadcastBlock<EngineStatus> broadcastBlock = new BroadcastBlock<EngineStatus>(engineStatus => engineStatus);
@@ -306,13 +324,7 @@ namespace Inversion.Messaging.Process
                 processBlock.LinkTo(failedBlock, t => !t.Item2);
             }
 
-            TransformBlock<EngineStatus, Tuple<IEvent, bool>> heartbeatProcessBlock = this.MakeHeartbeatProcessBlock();
-            heartbeatProcessBlock.LinkTo(DataflowBlock.NullTarget<Tuple<IEvent, bool>>());
-
-            heartbeatBlock.LinkTo(heartbeatProcessBlock, status => status != EngineStatus.Null);
-
             _engineChain = broadcastBlock;
-            _engineHeartbeat = heartbeatBlock;
 
             _enginePushBlocks.Add(successBlock);
             _enginePushBlocks.Add(failedBlock);
@@ -391,6 +403,10 @@ namespace Inversion.Messaging.Process
             {
                 _control.Stop();
             }
+            if (_logger.HasStarted)
+            {
+                _logger.Stop();
+            }
 
             base.Stop();
         }
@@ -418,6 +434,8 @@ namespace Inversion.Messaging.Process
         /// </summary>
         protected void Run()
         {
+            this.Log("engine", "Run");
+
             if (!StartControlHandler())
             {
                 return;
@@ -429,6 +447,7 @@ namespace Inversion.Messaging.Process
             // set our loop flag to its initial state
             bool keepRunning = true;
 
+            this.Log("engine", "Entering main loop");
             Console.WriteLine("Engine entering main loop");
 
             // main event pump loop
@@ -473,6 +492,8 @@ namespace Inversion.Messaging.Process
                 }
             }
 
+            this.Log("engine", "Finishing");
+
             _engineChain.Complete();
             _engineChain.Completion.Wait();
 
@@ -487,6 +508,8 @@ namespace Inversion.Messaging.Process
 
             //ShutdownPushHandler();
             ShutdownControlHandler();
+
+            ApplicationShutdown();
         }
 
         protected virtual int CalculateYieldTime()
@@ -525,7 +548,12 @@ namespace Inversion.Messaging.Process
 
         private void SendHeartbeat()
         {
-            _engineHeartbeat.Post(_currentStatus);
+            this.Log("engine", "SendHeartbeat");
+
+            IEvent ev = new MessagingEvent(null, "engine::heartbeat", DateTime.Now,
+                            new Dictionary<string, string>());
+
+            Tuple<IEvent, bool> t = new Tuple<IEvent, bool>(ev, ProcessEvent(ev));
         }
 
         /// <summary>
@@ -538,9 +566,13 @@ namespace Inversion.Messaging.Process
         /// <param name="e">The event to process</param>
         protected bool ProcessEvent(IEvent e)
         {
-            // create a fresh context
-            TimedContext context = new TimedContext(_serviceContainer, _resourceAdapter);
+            this.Log("engine", String.Format("ProcessEvent({0})", e.Message));
 
+            // create a fresh context
+            IProcessContext context = (_logger != null)
+                ? new TimedLoggingContext(_serviceContainer, _resourceAdapter, _logger)
+                : new TimedContext(_serviceContainer, _resourceAdapter);
+            
             //Console.WriteLine("ProcessEvent {0}", e.Message);
 
             // read the list of behaviours from the 'event-behaviours' list
@@ -592,10 +624,18 @@ namespace Inversion.Messaging.Process
             finally
             {
                 // perform house-keeping on the context
-                context.Completed();
+                ((TimedContext) context).Completed();
             }
 
             return success;
+        }
+
+        protected void Log(string entity, string message)
+        {
+            if (_logger != null)
+            {
+                _logger.Log(entity, message);
+            }
         }
 
         /// <summary>
@@ -603,6 +643,7 @@ namespace Inversion.Messaging.Process
         /// </summary>
         public void Shutdown()
         {
+            this.Log("engine", "Shutdown");
             Console.WriteLine("Engine: Shutting Down");
             Trace.TraceInformation("Engine: Shutting Down");
             _desiredState = EngineStatus.Off;
@@ -610,6 +651,7 @@ namespace Inversion.Messaging.Process
 
         public void Pause()
         {
+            this.Log("engine", "Pause");
             Console.WriteLine("Engine: Pausing");
             Trace.TraceInformation("Engine: Pausing");
             _desiredState = EngineStatus.Paused;
@@ -617,6 +659,7 @@ namespace Inversion.Messaging.Process
 
         public void Resume()
         {
+            this.Log("engine", "Resume");
             Console.WriteLine("Engine: Resuming");
             Trace.TraceInformation("Engine: Resuming");
             _desiredState = EngineStatus.Working;
@@ -624,6 +667,7 @@ namespace Inversion.Messaging.Process
 
         public void EnsureStarted()
         {
+            this.Log("engine", "EnsureStarted");
             _control.ForceStatus(_config.ControlName,
                 new EngineControlStatus
             {
