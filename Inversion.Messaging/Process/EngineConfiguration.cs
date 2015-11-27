@@ -50,5 +50,17 @@ namespace Inversion.Messaging.Process
         /// </summary>
         public bool ExitOnEmptyQueue { get { return _exitOnEmptyQueue; } set { _exitOnEmptyQueue = value; } }
         private bool _exitOnEmptyQueue = false;
+
+        /// <summary>
+        /// Whether the engine should issue a heartbeat in the Run thread rather than a separate TPL Task.
+        /// </summary>
+        public bool UseInlineHeartbeat {  get { return _useInlineHeartbeat; } set { _useInlineHeartbeat = value; } }
+        private bool _useInlineHeartbeat = false;
+
+        /// <summary>
+        /// Set the control handler as being a long running task
+        /// </summary>
+        public bool HeartbeatIsLongRunningTask { get { return _heartbeatIsLongRunningTask; } set { _heartbeatIsLongRunningTask = value; } }
+        private bool _heartbeatIsLongRunningTask = true;
     }
 }

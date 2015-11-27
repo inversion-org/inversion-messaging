@@ -1,6 +1,7 @@
 using System;
 using System.Reactive.Linq;
 using Inversion.Data;
+using Inversion.Messaging.Logging;
 using Inversion.Process;
 using Inversion.Process.Behaviour;
 

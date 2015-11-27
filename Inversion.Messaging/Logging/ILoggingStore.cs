@@ -1,8 +1,6 @@
-﻿using System;
+﻿using Inversion.Data;
 
-using Inversion.Data;
-
-namespace Inversion.Messaging.Process
+namespace Inversion.Messaging.Logging
 {
     public interface ILoggingStore : IStore
     {

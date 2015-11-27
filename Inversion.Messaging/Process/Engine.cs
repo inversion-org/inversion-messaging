@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
 using Inversion.Data;
+using Inversion.Messaging.Logging;
 using Inversion.Messaging.Model;
 using Inversion.Messaging.Process.Context;
 using Inversion.Messaging.Transport;
@@ -55,6 +56,10 @@ namespace Inversion.Messaging.Process
         private EngineStatus _currentStatus = EngineStatus.Off;
         private long _totalProcessed = 0;
         private bool _drained = false;
+
+        private bool _loggingEnabled = false;
+
+        private DateTime _lastHeartbeat = DateTime.Now;
 
         protected string EngineId = String.Format("{0}:{1}", System.Environment.MachineName, Guid.NewGuid());
 
@@ -133,7 +138,7 @@ namespace Inversion.Messaging.Process
                         {
                             _control.Start();
                         }
-                        if (!_logger.HasStarted)
+                        if (_logger != null && !_logger.HasStarted)
                         {
                             _logger.Start();
                         }
@@ -277,17 +282,6 @@ namespace Inversion.Messaging.Process
         {
             BroadcastBlock<EngineStatus> broadcastBlock = new BroadcastBlock<EngineStatus>(engineStatus => engineStatus);
 
-            var heartbeatBlock = new TransformBlock<EngineStatus, EngineStatus>(
-                (engineStatus) =>
-                {
-                    if (_currentStatus == EngineStatus.Working)
-                    {
-                        return EngineStatus.Heartbeat;
-                    }
-
-                    return EngineStatus.Null;
-                });
-
             ActionBlock<Tuple<IEvent, bool>> successBlock = new ActionBlock<Tuple<IEvent, bool>>(
                 (t) =>
                 {
@@ -346,7 +340,13 @@ namespace Inversion.Messaging.Process
 
             // now begin the task normally
             _runControlHandler = true;
-            _controlTask = Task.Factory.StartNew(ControlHandler, TaskCreationOptions.LongRunning);
+
+            if(!_config.UseInlineHeartbeat)
+            {
+                _controlTask = _config.HeartbeatIsLongRunningTask
+                ? Task.Factory.StartNew(ControlHandler, TaskCreationOptions.LongRunning)
+                : Task.Factory.StartNew(ControlHandler);
+            }
 
             return true;
         }
@@ -356,8 +356,11 @@ namespace Inversion.Messaging.Process
             // request the control handler task to stop
             _runControlHandler = false;
 
-            // wait for it to complete
-            _controlTask.Wait();
+            if (!_config.UseInlineHeartbeat)
+            {
+                // wait for it to complete
+                _controlTask.Wait();
+            }
 
             // update our status (should be EngineStatus.Off)
             _control.UpdateCurrentStatus(_config.ControlName, _currentStatus);
@@ -403,7 +406,7 @@ namespace Inversion.Messaging.Process
             {
                 _control.Stop();
             }
-            if (_logger.HasStarted)
+            if (_logger != null && _logger.HasStarted)
             {
                 _logger.Stop();
             }
@@ -474,6 +477,11 @@ namespace Inversion.Messaging.Process
                 if (keepRunning && processMessages)
                 {
                     _engineChain.Post(_currentStatus);
+
+                    if (_config.UseInlineHeartbeat)
+                    {
+                        ManualControlHandler();
+                    }
 
                     if (_startLatch && _config.ExitOnEmptyQueue && _drained)
                     {
@@ -546,6 +554,17 @@ namespace Inversion.Messaging.Process
             }
         }
 
+        private void ManualControlHandler()
+        {
+            if (DateTime.Now.Subtract(_lastHeartbeat).TotalMilliseconds > _config.ControlHandlerYieldTime)
+            {
+                _control.UpdateCurrentStatus(_config.ControlName, _currentStatus);
+                _control.ReceiveCommand(_config.ControlName, this, _currentStatus);
+
+                SendHeartbeat();
+            }
+        }
+
         private void SendHeartbeat()
         {
             this.Log("engine", "SendHeartbeat");
@@ -554,6 +573,8 @@ namespace Inversion.Messaging.Process
                             new Dictionary<string, string>());
 
             Tuple<IEvent, bool> t = new Tuple<IEvent, bool>(ev, ProcessEvent(ev));
+
+            _lastHeartbeat = DateTime.Now;
         }
 
         /// <summary>
