@@ -478,11 +478,6 @@ namespace Inversion.Messaging.Process
                 {
                     _engineChain.Post(_currentStatus);
 
-                    if (_config.UseInlineHeartbeat)
-                    {
-                        ManualControlHandler();
-                    }
-
                     if (_startLatch && _config.ExitOnEmptyQueue && _drained)
                     {
                         // if we have no events to process but we have done some processing and we have been asked to exit on an empty queue, exit loop
@@ -497,6 +492,11 @@ namespace Inversion.Messaging.Process
                 {
                     // yield for a configurable time
                     System.Threading.Thread.Sleep(yieldTime);
+                }
+
+                if (_config.UseInlineHeartbeat)
+                {
+                    ManualControlHandler();
                 }
             }
 
