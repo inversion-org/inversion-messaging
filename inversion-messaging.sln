@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging.AmazonS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging.DynamoDB", "Inversion.Messaging.DynamoDB\Inversion.Messaging.DynamoDB.csproj", "{C4B1107C-C235-4B89-A2B4-1E2ACF624505}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging.PostgreSQL", "Inversion.Messaging.PostgreSQL\Inversion.Messaging.PostgreSQL.csproj", "{6087FA00-2C04-4400-8926-47BFE41C6CF6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{C4B1107C-C235-4B89-A2B4-1E2ACF624505}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4B1107C-C235-4B89-A2B4-1E2ACF624505}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4B1107C-C235-4B89-A2B4-1E2ACF624505}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6087FA00-2C04-4400-8926-47BFE41C6CF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6087FA00-2C04-4400-8926-47BFE41C6CF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6087FA00-2C04-4400-8926-47BFE41C6CF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6087FA00-2C04-4400-8926-47BFE41C6CF6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

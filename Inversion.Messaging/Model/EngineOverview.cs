@@ -117,6 +117,7 @@ namespace Inversion.Messaging.Model
             writer.WriteElementString("desiredstatus", ((int) this.DesiredStatus).ToString());
             writer.WriteElementString("desiredstatusdisplay", Enum.GetName(typeof(EngineStatus), this.DesiredStatus));
             writer.WriteElementString("updated", this.Updated.ToString("o"));
+            writer.WriteElementString("ago", DateTime.Now.Subtract(this.Updated).TotalMilliseconds.ToString());
 
             writer.WriteEndElement();
         }
@@ -139,7 +140,8 @@ namespace Inversion.Messaging.Model
             writer.WriteValue(Enum.GetName(typeof(EngineStatus), this.DesiredStatus));
             writer.WritePropertyName("updated");
             writer.WriteValue(this.Updated);
-
+            writer.WritePropertyName("ago");
+            writer.WriteValue(DateTime.Now.Subtract(this.Updated).TotalMilliseconds);
             writer.WriteEndObject();
         }
 
