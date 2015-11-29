@@ -522,7 +522,17 @@ namespace Inversion.Messaging.Process
 
         protected virtual int CalculateYieldTime()
         {
-            bool anyReaderSuccess = _readerSucceeded.Any(s => s);
+            bool anyReaderSuccess = false;
+
+            try
+            {
+                anyReaderSuccess = _readerSucceeded.Any(s => s);
+            }
+            catch (InvalidOperationException)
+            {
+                // ignore - collection was probably modified
+                anyReaderSuccess = false;
+            }
 
             if (anyReaderSuccess)
             {
