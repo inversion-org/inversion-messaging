@@ -12,6 +12,15 @@ namespace Inversion.Messaging.Process
     {
         public RedisEngineOverviewStore(string connections, int databaseNumber) : base(connections, databaseNumber) { }
 
+        public IEnumerable<EngineOverview> GetAllGlobalStatus()
+        {
+            IEnumerable<RedisKey> keys =
+                this.ConnectionMultiplexer.GetServer(this.Database.IdentifyEndpoint())
+                    .Keys(this.Database.Database, "*");
+
+            return keys.Where(k => !(k.ToString()).Contains("@")).Select(k => this.ConvertHashEntryArrayToEngineOverview(k, this.Database.HashGetAll(k)));
+        }
+
         public EngineOverview GetGlobalStatus(string name)
         {
             HashEntry[] entries = this.Database.HashGetAll(name);
@@ -27,20 +36,25 @@ namespace Inversion.Messaging.Process
             };
         }
 
-        public EngineOverview Get(string name)
+        public EngineOverview GetEngine(string name)
         {
             HashEntry[] entries = this.Database.HashGetAll(name);
 
             return this.ConvertHashEntryArrayToEngineOverview(name, entries);
         }
 
-        public IEnumerable<EngineOverview> GetAll()
+        public IEnumerable<EngineOverview> GetAllEnginesByControl(string name)
         {
             IEnumerable<RedisKey> keys =
                 this.ConnectionMultiplexer.GetServer(this.Database.IdentifyEndpoint())
-                    .Keys(this.Database.Database, "engine:*");
+                    .Keys(this.Database.Database, String.Concat("engine:", name, "*"));
 
             return keys.Select(k => this.ConvertHashEntryArrayToEngineOverview(k, this.Database.HashGetAll(k)));
+        }
+
+        public void Remove(string name)
+        {
+            this.Database.KeyDelete(name);
         }
 
         protected EngineOverview ConvertHashEntryArrayToEngineOverview(string name, HashEntry[] entries)

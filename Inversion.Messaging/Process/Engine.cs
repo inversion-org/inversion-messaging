@@ -382,8 +382,6 @@ namespace Inversion.Messaging.Process
         /// </summary>
         public override void Stop()
         {
-            _currentStatus = EngineStatus.Stopping;
-
             // change the engine's desired state to stopped, this will signal the engine task.
             _desiredState = EngineStatus.Off;
             _currentStatus = EngineStatus.Off;

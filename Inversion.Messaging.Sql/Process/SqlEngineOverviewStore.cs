@@ -11,20 +11,36 @@ namespace Inversion.Messaging.Process
 {
     public abstract class SqlEngineOverviewStore : SqlStore, IEngineOverviewStore
     {
-        protected abstract string GetQuery { get; }
-        protected abstract string GetAllQuery { get; }
+        protected abstract string GetAllGlobalStatusQuery { get; }
+        protected abstract string GetEngineQuery { get; }
+        protected abstract string GetAllEnginesByControlQuery { get; }
+        protected abstract string RemoveQuery { get; }
 
         protected SqlEngineOverviewStore(string connStr) : base(SqlClientFactory.Instance, connStr) { }
         protected SqlEngineOverviewStore(DbProviderFactory instance, string connStr) : base(instance, connStr) { }
 
-        public EngineOverview GetGlobalStatus(string name)
+        public IEnumerable<EngineOverview> GetAllGlobalStatus()
         {
-            return this.Get(name);
+            List<EngineOverview> results = new List<EngineOverview>();
+            using (IDataReader dataReader = this.Read(this.GetAllGlobalStatusQuery))
+            {
+                while (dataReader.Read())
+                {
+                    results.Add(this.Read(dataReader));
+                }
+            }
+
+            return results;
         }
 
-        public EngineOverview Get(string name)
+        public EngineOverview GetGlobalStatus(string name)
         {
-            using (IDataReader dataReader = this.Read(this.GetQuery, _parameter("@name", name)))
+            return this.GetEngine(name);
+        }
+
+        public EngineOverview GetEngine(string name)
+        {
+            using (IDataReader dataReader = this.Read(this.GetEngineQuery, _parameter("@name", name)))
             {
                 while (dataReader.Read())
                 {
@@ -35,10 +51,10 @@ namespace Inversion.Messaging.Process
             return null;
         }
 
-        public IEnumerable<EngineOverview> GetAll()
+        public IEnumerable<EngineOverview> GetAllEnginesByControl(string name)
         {
             List<EngineOverview> results = new List<EngineOverview>();
-            using (IDataReader dataReader = this.Read(this.GetAllQuery))
+            using (IDataReader dataReader = this.Read(this.GetAllEnginesByControlQuery, _parameter("@name", name)))
             {
                 while (dataReader.Read())
                 {
@@ -47,6 +63,11 @@ namespace Inversion.Messaging.Process
             }
 
             return results;
+        }
+
+        public void Remove(string name)
+        {
+            this.Exec(this.RemoveQuery, _parameter("@name", name));
         }
 
         protected EngineOverview Read(IDataReader dataReader)

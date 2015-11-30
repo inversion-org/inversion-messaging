@@ -12,6 +12,7 @@
         Stopping,
         Paused,
         Heartbeat,
+        Broken,
         Null
     }
 }
