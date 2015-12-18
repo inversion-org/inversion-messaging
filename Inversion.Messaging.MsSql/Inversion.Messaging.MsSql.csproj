@@ -53,19 +53,19 @@
       <Project>{18a7e8cb-cdb4-4846-8b5e-6e7d03178831}</Project>
       <Name>Inversion.Messaging</Name>
     </ProjectReference>
-    <ProjectReference Include="..\submodules\inversion-data\Inversion.Data.Sql\Inversion.Data.Sql.csproj">
+    <ProjectReference Include="$(SolutionDir)submodules\inversion-data\Inversion.Data.Sql\Inversion.Data.Sql.csproj">
       <Project>{1bdf9896-7d98-4bfa-b64b-dd31f79739f9}</Project>
       <Name>Inversion.Data.Sql</Name>
     </ProjectReference>
-    <ProjectReference Include="..\submodules\inversion-data\Inversion.Data\Inversion.Data.csproj">
+    <ProjectReference Include="$(SolutionDir)submodules\inversion-data\Inversion.Data\Inversion.Data.csproj">
       <Project>{1cb68d8f-fbce-4dac-858c-fed6fce48306}</Project>
       <Name>Inversion.Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\submodules\inversion\Inversion.Process\Inversion.Process.csproj">
+    <ProjectReference Include="$(SolutionDir)submodules\inversion\Inversion.Process\Inversion.Process.csproj">
       <Project>{37f59768-76ea-4d09-8976-bbc3540db5ae}</Project>
       <Name>Inversion.Process</Name>
     </ProjectReference>
-    <ProjectReference Include="..\submodules\inversion\Inversion\Inversion.csproj">
+    <ProjectReference Include="$(SolutionDir)submodules\inversion\Inversion\Inversion.csproj">
       <Project>{a2dbf0b8-b672-4237-8a0b-864bb0474054}</Project>
       <Name>Inversion</Name>
     </ProjectReference>

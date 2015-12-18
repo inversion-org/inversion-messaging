@@ -44,15 +44,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Inversion.Messaging\Inversion.Messaging.csproj">
+    <ProjectReference Include="$(SolutionDir)Inversion.Messaging\Inversion.Messaging.csproj">
       <Project>{18a7e8cb-cdb4-4846-8b5e-6e7d03178831}</Project>
       <Name>Inversion.Messaging</Name>
     </ProjectReference>
-    <ProjectReference Include="..\submodules\inversion-data\Inversion.Data\Inversion.Data.csproj">
+    <ProjectReference Include="$(SolutionDir)submodules\inversion-data\Inversion.Data\Inversion.Data.csproj">
       <Project>{1cb68d8f-fbce-4dac-858c-fed6fce48306}</Project>
       <Name>Inversion.Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\submodules\inversion\Inversion\Inversion.csproj">
+    <ProjectReference Include="$(SolutionDir)submodules\inversion\Inversion\Inversion.csproj">
       <Project>{a2dbf0b8-b672-4237-8a0b-864bb0474054}</Project>
       <Name>Inversion</Name>
     </ProjectReference>

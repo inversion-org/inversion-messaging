@@ -33,10 +33,10 @@
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>$(SolutionDir)packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="StackExchange.Redis">
-      <HintPath>..\packages\StackExchange.Redis.1.0.414\lib\net45\StackExchange.Redis.dll</HintPath>
+      <HintPath>$(SolutionDir)packages\StackExchange.Redis.1.0.414\lib\net45\StackExchange.Redis.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -62,19 +62,19 @@
       <Project>{18a7e8cb-cdb4-4846-8b5e-6e7d03178831}</Project>
       <Name>Inversion.Messaging</Name>
     </ProjectReference>
-    <ProjectReference Include="..\submodules\inversion-data\Inversion.Data.Redis\Inversion.Data.Redis.csproj">
+    <ProjectReference Include="$(SolutionDir)submodules\inversion-data\Inversion.Data.Redis\Inversion.Data.Redis.csproj">
       <Project>{ce309caf-9930-4993-9643-37aba4bbda25}</Project>
       <Name>Inversion.Data.Redis</Name>
     </ProjectReference>
-    <ProjectReference Include="..\submodules\inversion-data\Inversion.Data\Inversion.Data.csproj">
+    <ProjectReference Include="$(SolutionDir)submodules\inversion-data\Inversion.Data\Inversion.Data.csproj">
       <Project>{1cb68d8f-fbce-4dac-858c-fed6fce48306}</Project>
       <Name>Inversion.Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\submodules\inversion\Inversion.Process\Inversion.Process.csproj">
+    <ProjectReference Include="$(SolutionDir)submodules\inversion\Inversion.Process\Inversion.Process.csproj">
       <Project>{37f59768-76ea-4d09-8976-bbc3540db5ae}</Project>
       <Name>Inversion.Process</Name>
     </ProjectReference>
-    <ProjectReference Include="..\submodules\inversion\Inversion\Inversion.csproj">
+    <ProjectReference Include="$(SolutionDir)submodules\inversion\Inversion\Inversion.csproj">
       <Project>{a2dbf0b8-b672-4237-8a0b-864bb0474054}</Project>
       <Name>Inversion</Name>
     </ProjectReference>

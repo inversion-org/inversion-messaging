@@ -32,11 +32,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AWSSDK.Core, Version=3.1.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
-      <HintPath>..\packages\AWSSDK.Core.3.1.2.1\lib\net45\AWSSDK.Core.dll</HintPath>
+      <HintPath>$(SolutionDir)packages\AWSSDK.Core.3.1.2.1\lib\net45\AWSSDK.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="AWSSDK.DynamoDBv2, Version=3.1.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
-      <HintPath>..\packages\AWSSDK.DynamoDBv2.3.1.1.1\lib\net45\AWSSDK.DynamoDBv2.dll</HintPath>
+      <HintPath>$(SolutionDir)packages\AWSSDK.DynamoDBv2.3.1.1.1\lib\net45\AWSSDK.DynamoDBv2.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -61,15 +61,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Inversion.Messaging\Inversion.Messaging.csproj">
+    <ProjectReference Include="$(SolutionDir)Inversion.Messaging\Inversion.Messaging.csproj">
       <Project>{18a7e8cb-cdb4-4846-8b5e-6e7d03178831}</Project>
       <Name>Inversion.Messaging</Name>
     </ProjectReference>
-    <ProjectReference Include="..\submodules\inversion-data\Inversion.Data.DynamoDB\Inversion.Data.DynamoDB.csproj">
+    <ProjectReference Include="$(SolutionDir)submodules\inversion-data\Inversion.Data.DynamoDB\Inversion.Data.DynamoDB.csproj">
       <Project>{6a6a1008-c2ef-4df8-bf5f-dfcbdf175090}</Project>
       <Name>Inversion.Data.DynamoDB</Name>
     </ProjectReference>
-    <ProjectReference Include="..\submodules\inversion-data\Inversion.Data\Inversion.Data.csproj">
+    <ProjectReference Include="$(SolutionDir)submodules\inversion-data\Inversion.Data\Inversion.Data.csproj">
       <Project>{1cb68d8f-fbce-4dac-858c-fed6fce48306}</Project>
       <Name>Inversion.Data</Name>
     </ProjectReference>
