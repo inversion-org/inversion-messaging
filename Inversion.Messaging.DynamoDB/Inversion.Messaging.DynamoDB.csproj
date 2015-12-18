@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Inversion.Messaging</RootNamespace>
     <AssemblyName>Inversion.Messaging.DynamoDB</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -38,12 +39,6 @@
       <HintPath>..\packages\AWSSDK.DynamoDBv2.3.1.1.1\lib\net45\AWSSDK.DynamoDBv2.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Inversion.Data">
-      <HintPath>..\lib\Inversion\Inversion.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="Inversion.Data.DynamoDB">
-      <HintPath>..\lib\Inversion\Inversion.Data.DynamoDB.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -59,17 +54,25 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Inversion.Messaging\Inversion.Messaging.csproj">
-      <Project>{18a7e8cb-cdb4-4846-8b5e-6e7d03178831}</Project>
-      <Name>Inversion.Messaging</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Transport\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Inversion.Messaging\Inversion.Messaging.csproj">
+      <Project>{18a7e8cb-cdb4-4846-8b5e-6e7d03178831}</Project>
+      <Name>Inversion.Messaging</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\submodules\inversion-data\Inversion.Data.DynamoDB\Inversion.Data.DynamoDB.csproj">
+      <Project>{6a6a1008-c2ef-4df8-bf5f-dfcbdf175090}</Project>
+      <Name>Inversion.Data.DynamoDB</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\submodules\inversion-data\Inversion.Data\Inversion.Data.csproj">
+      <Project>{1cb68d8f-fbce-4dac-858c-fed6fce48306}</Project>
+      <Name>Inversion.Data</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

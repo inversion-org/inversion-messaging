@@ -1,0 +1,6 @@
+[submodule "submodules/inversion"]
+	path = submodules/inversion
+	url = https://github.com/guy-murphy/inversion-dev.git
+[submodule "submodules/inversion-data"]
+	path = submodules/inversion-data
+	url = https://github.com/fractos/inversion-data.git
