@@ -61,7 +61,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)Inversion.Messaging\Inversion.Messaging.csproj">
+    <ProjectReference Include="..\Inversion.Messaging\Inversion.Messaging.csproj">
       <Project>{18a7e8cb-cdb4-4846-8b5e-6e7d03178831}</Project>
       <Name>Inversion.Messaging</Name>
     </ProjectReference>
