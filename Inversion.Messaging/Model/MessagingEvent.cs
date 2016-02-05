@@ -154,7 +154,7 @@ namespace Inversion.Messaging.Model
         /// <param name="context">The context to which the new event will be bound.</param>
         /// <param name="xml">The xml representation of an event.</param>
         /// <returns>Returns a new event.</returns>
-        public static new Event FromXml(ProcessContext context, string xml)
+        public new static Event FromXml(IProcessContext context, string xml)
         {
             try
             {
@@ -185,7 +185,7 @@ namespace Inversion.Messaging.Model
         /// <param name="context">The context to which the new event will be bound.</param>
         /// <param name="json">The json representation of an event.</param>
         /// <returns>Returns a new event.</returns>
-        public static new Event FromJson(ProcessContext context, string json)
+        public new static Event FromJson(IProcessContext context, string json)
         {
             try
             {
