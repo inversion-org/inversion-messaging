@@ -40,9 +40,9 @@ namespace Inversion.Messaging.Process.Context
                                    }
                                    catch (Exception err)
                                    {
-                                       this.Log("rescue", String.Format("{0}: {1}", behaviourName, err.Message));
+                                       this.Log("rescue", String.Format("{0}: {1}", behaviourName, err.ToString()));
                                        behaviour.Rescue(ev, err);
-                                       throw err;
+                                       throw;
                                    }
                 }
                 );
