@@ -631,7 +631,7 @@ namespace Inversion.Messaging.Process
                 if (thisEvent.HasParams("_failed") || thisEvent.Context.Errors.Any())
                 {
                     string exceptionDetail = String.Join("\n", context.Errors);
-                    e.Params.Add("event::exception", exceptionDetail);
+                    e.Params["event::exception"] = exceptionDetail;
                 }
                 else
                 {
@@ -648,7 +648,7 @@ namespace Inversion.Messaging.Process
             {
                 // capture the exception details in the event parameters
                 string exceptionDetail = ex.ToString();
-                e.Params.Add("event::exception", exceptionDetail);
+                e.Params["event::exception"] = exceptionDetail;
             }
             finally
             {
