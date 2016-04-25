@@ -14,8 +14,47 @@ namespace Inversion.Messaging.Transport
     {
         public AmazonSQSTransport(string serviceUrl, string region, string accessKey, string accessSecret) : base(serviceUrl, region, accessKey, accessSecret) {}
 
+        public void EnsureCreated()
+        {
+            this.AssertIsStarted();
+
+            CreateQueueResponse createQueueResponse;
+
+            string queueName = "unset";
+
+            try
+            {
+                ListQueuesResponse listQueuesResponse = this.Client.ListQueues(this.ServiceUrl);
+
+                if (listQueuesResponse.QueueUrls.Contains(this.ServiceUrl))
+                {
+                    // found our queue
+                    return;
+                }
+
+                queueName = this.ServiceUrl.Substring(this.ServiceUrl.LastIndexOf('/') + 1);
+
+                createQueueResponse = this.Client.CreateQueue(queueName);
+
+                if (createQueueResponse.QueueUrl == this.ServiceUrl)
+                {
+                    // our queue has been created
+                    return;
+                }
+            }
+            catch (Exception)
+            {
+                throw new Exception(String.Format("Problem while creating queue (url: {0} name:{1})",
+                    this.ServiceUrl, queueName));
+            }
+            
+            throw new Exception(String.Format("Created queue didn't match service url.\r\nExpected: {0}\r\nReceived: {1}\r\n", this.ServiceUrl, createQueueResponse.QueueUrl));
+        }
+
         public void Push(IEvent ev)
         {
+            this.AssertIsStarted();
+
             SendMessageResponse response = this.Client.SendMessage(new SendMessageRequest
             {
                 MessageBody = ev.ToJson(),
@@ -25,6 +64,8 @@ namespace Inversion.Messaging.Transport
 
         public IEvent Pop()
         {
+            this.AssertIsStarted();
+
             ReceiveMessageResponse response = this.Client.ReceiveMessage(new ReceiveMessageRequest
             {
                 MaxNumberOfMessages = 1,
@@ -53,6 +94,8 @@ namespace Inversion.Messaging.Transport
 
         public IEvent Peek()
         {
+            this.AssertIsStarted();
+
             ReceiveMessageResponse response = this.Client.ReceiveMessage(new ReceiveMessageRequest
             {
                 MaxNumberOfMessages = 1,
@@ -74,6 +117,8 @@ namespace Inversion.Messaging.Transport
 
         public long Count()
         {
+            this.AssertIsStarted();
+
             GetQueueAttributesResponse response = this.Client.GetQueueAttributes(new GetQueueAttributesRequest
             {
                 AttributeNames = new List<string> { "ApproximateNumberOfMessages" },
