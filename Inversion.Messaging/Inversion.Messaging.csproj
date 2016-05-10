@@ -86,6 +86,7 @@
     <Compile Include="Transport\IPop.cs" />
     <Compile Include="Transport\IPush.cs" />
     <Compile Include="Transport\ITransport.cs" />
+    <Compile Include="Transport\NullTransport.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
