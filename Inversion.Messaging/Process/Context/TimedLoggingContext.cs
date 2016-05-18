@@ -20,7 +20,7 @@ namespace Inversion.Messaging.Process.Context
 
         public override IEvent Fire(IEvent ev)
         {
-            this.Log("fire", ev.Message);
+            this.LogDebug("fire", ev.Message);
             return base.Fire(ev);
         }
 
@@ -31,7 +31,7 @@ namespace Inversion.Messaging.Process.Context
                         string behaviourName = behaviour.GetType().FullName;
                         try
                         {
-                            this.Log("action", behaviourName);
+                            this.LogDebug("action", behaviourName);
 
                             ev.Context.Timers.Begin(behaviourName);
 
@@ -66,6 +66,14 @@ namespace Inversion.Messaging.Process.Context
             if (_logger != null)
             {
                 _logger.Log(entity, message);
+            }
+        }
+
+        protected void LogDebug(string entity, string message)
+        {
+            if (_logger != null)
+            {
+                _logger.LogDebug(entity, message);
             }
         }
 

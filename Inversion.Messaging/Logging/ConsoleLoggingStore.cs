@@ -12,7 +12,12 @@ namespace Inversion.Messaging.Logging
 
         public void Log(string entity, string message)
         {
-            Console.WriteLine("{0}-{1:yyyymmdd}:{1:hhMMss}.{1:fff} {2}", entity, DateTime.Now, message);
+            Console.WriteLine(String.Format("{0} {1}: {2}", DateTime.Now, entity, message));
+        }
+
+        public void LogDebug(string entity, string message)
+        {
+            Console.WriteLine(String.Format("{0} {1}: {2}", DateTime.Now, entity, message));
         }
     }
 }

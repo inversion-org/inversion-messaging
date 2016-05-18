@@ -595,7 +595,7 @@ namespace Inversion.Messaging.Process
         /// <param name="e">The event to process</param>
         protected bool ProcessEvent(IEvent e)
         {
-            this.Log("engine", String.Format("ProcessEvent({0})", e.Message));
+            this.LogDebug("engine", String.Format("ProcessEvent({0})", e.Message));
 
             // create a fresh context
             IProcessContext context = (_logger != null)
@@ -664,6 +664,14 @@ namespace Inversion.Messaging.Process
             if (_logger != null)
             {
                 _logger.Log(entity, message);
+            }
+        }
+
+        protected void LogDebug(string entity, string message)
+        {
+            if (_logger != null)
+            {
+                _logger.LogDebug(entity, message);
             }
         }
 
