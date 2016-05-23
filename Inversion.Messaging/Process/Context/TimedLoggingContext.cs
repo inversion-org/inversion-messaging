@@ -1,10 +1,12 @@
 using System;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using Inversion.Data;
 using Inversion.Messaging.Logging;
 using Inversion.Process;
 using Inversion.Process.Behaviour;
+using Newtonsoft.Json.Linq;
 
 namespace Inversion.Messaging.Process.Context
 {
@@ -51,7 +53,11 @@ namespace Inversion.Messaging.Process.Context
                             {
                                 actionLog.AppendLine(ToDiagnosticString(((IPrototypedBehaviour)behaviour).Configuration));
                             }
+                            actionLog.AppendLine("event:");
+                            actionLog.AppendLine(String.Join(",\r\n", ev.Params.Keys.Select(k => String.Format("{0} : {1}", k, ev.Params[k]))));
+                            actionLog.AppendLine("params:");
                             actionLog.AppendLine(ev.Context.Params.ToJsonObject().ToString());
+                            actionLog.AppendLine("control state:");
                             actionLog.AppendLine(ev.Context.ControlState.ToJsonObject().ToString());
 
                             this.Log("error", actionLog.ToString());
