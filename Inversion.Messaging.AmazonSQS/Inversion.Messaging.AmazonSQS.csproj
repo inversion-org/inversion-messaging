@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Process\AmazonSQSEngineController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Transport\AmazonSQSMultiTransport.cs" />
     <Compile Include="Transport\AmazonSQSTransport.cs" />
   </ItemGroup>
   <ItemGroup>
