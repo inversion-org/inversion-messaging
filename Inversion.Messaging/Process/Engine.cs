@@ -631,7 +631,18 @@ namespace Inversion.Messaging.Process
                 if (thisEvent.HasParams("_failed") || thisEvent.Context.Errors.Any())
                 {
                     string exceptionDetail = String.Join("\n", context.Errors);
-                    e.Params["event::exception"] = exceptionDetail;
+
+                    int count = -1;
+                    string candidateName;
+
+                    do
+                    {
+                        count++;
+                        candidateName = String.Format("event::exception{0}",
+                            count > 0 ? String.Concat("::", count.ToString()) : String.Empty);
+                    } while (e.Params.ContainsKey(candidateName));
+
+                    e.Params[candidateName] = exceptionDetail;
                 }
                 else
                 {
