@@ -73,7 +73,7 @@ namespace Inversion.Messaging.Transport
                             this.Client.DeleteMessage(new DeleteMessageRequest
                             {
                                 ReceiptHandle = message.ReceiptHandle,
-                                QueueUrl = this.ServiceUrl
+                                QueueUrl = serviceUrl
                             });
                         }
 
