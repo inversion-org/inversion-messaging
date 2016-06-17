@@ -9,6 +9,7 @@ namespace Inversion.Messaging.Process
 
     public interface IEngineOverviewStore : IStore
     {
+        IEnumerable<EngineOverview> GetAll();
         IEnumerable<EngineOverview> GetAllGlobalStatus();
         EngineOverview GetGlobalStatus(string name);
         EngineOverview GetEngine(string name);

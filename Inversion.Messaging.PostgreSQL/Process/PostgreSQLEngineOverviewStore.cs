@@ -11,6 +11,11 @@ namespace Inversion.Messaging.Process
             get { return @"SELECT ""Name"", ""Current"", ""Desired"", ""Updated"" FROM ""EventProcessingControl"" {0}"; }
         }
 
+        protected override string GetAllQuery
+        {
+            get { return this.BaseQuery; }
+        }
+
         protected override string GetAllGlobalStatusQuery
         {
             get { return String.Format(this.BaseQuery, @" WHERE ""Name"" NOT LIKE 'engine:%@%'"); }

@@ -12,6 +12,11 @@ namespace Inversion.Messaging.Process
     {
         public RedisEngineOverviewStore(string connections, int databaseNumber) : base(connections, databaseNumber) { }
 
+        public IEnumerable<EngineOverview> GetAll()
+        {
+            return this.GetAllGlobalStatus();
+        }
+
         public IEnumerable<EngineOverview> GetAllGlobalStatus()
         {
             IEnumerable<RedisKey> keys =

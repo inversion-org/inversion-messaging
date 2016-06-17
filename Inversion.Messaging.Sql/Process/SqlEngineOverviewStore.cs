@@ -11,6 +11,7 @@ namespace Inversion.Messaging.Process
 {
     public abstract class SqlEngineOverviewStore : SqlStore, IEngineOverviewStore
     {
+        protected abstract string GetAllQuery { get; }
         protected abstract string GetAllGlobalStatusQuery { get; }
         protected abstract string GetEngineQuery { get; }
         protected abstract string GetAllEnginesByControlQuery { get; }
@@ -18,6 +19,20 @@ namespace Inversion.Messaging.Process
 
         protected SqlEngineOverviewStore(string connStr) : base(SqlClientFactory.Instance, connStr) { }
         protected SqlEngineOverviewStore(DbProviderFactory instance, string connStr) : base(instance, connStr) { }
+
+        public IEnumerable<EngineOverview> GetAll()
+        {
+            List<EngineOverview> results = new List<EngineOverview>();
+            using (IDataReader dataReader = this.Read(this.GetAllQuery))
+            {
+                while (dataReader.Read())
+                {
+                    results.Add(this.Read(dataReader));
+                }
+            }
+
+            return results;
+        }
 
         public IEnumerable<EngineOverview> GetAllGlobalStatus()
         {
