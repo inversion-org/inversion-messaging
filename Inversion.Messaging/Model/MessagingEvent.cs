@@ -199,25 +199,24 @@ namespace Inversion.Messaging.Model
         {
             try
             {
-                JsonReader reader = new JsonTextReader(new StringReader(json));
-                reader.DateParseHandling = DateParseHandling.None;
-                JObject job = JObject.Load(reader);
+                using (JsonReader reader = new JsonTextReader(new StringReader(json)))
+                {
+                    reader.DateParseHandling = DateParseHandling.None;
+                    JObject job = JObject.Load(reader);
 
-                if (job.Value<string>("_type") == "event")
-                {
-                    return new MessagingEvent(
-                        context,
-                        job.Value<string>("message"),
-                        job.Value<string>("_created") != null
-                            ? DateTime.Parse(job.Value<string>("_created"))
-                            : DateTime.MinValue,
-                        job.Value<JObject>("params").HasValues
-                            ? job.Value<JObject>("params").Properties().ToDictionary(p => p.Name, p => p.Value.ToString())
-                            : new Dictionary<string, string>()
-                    );
-                }
-                else
-                {
+                    if (job.Value<string>("_type") == "event")
+                    {
+                        return new MessagingEvent(
+                            context,
+                            job.Value<string>("message"),
+                            job.Value<string>("_created") != null
+                                ? DateTime.Parse(job.Value<string>("_created"))
+                                : DateTime.MinValue,
+                            job.Value<JObject>("params").HasValues
+                                ? job.Value<JObject>("params").Properties().ToDictionary(p => p.Name, p => p.Value.ToString())
+                                : new Dictionary<string, string>()
+                        );
+                    }
                     throw new ParseException("The expressed type of the json provided does not appear to be an event.");
                 }
             }
