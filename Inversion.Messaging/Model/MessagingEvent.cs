@@ -80,6 +80,16 @@ namespace Inversion.Messaging.Model
 		/// <param name="ev">The event to copy for this new instance.</param>
         public MessagingEvent(IEvent ev) : base(ev) {}
 
+        /// <summary>
+        /// Instantiates a new event as a copy of the event provided and also allows setting of Created value.
+        /// </summary>
+        /// <param name="ev">The event to copy for this new instance.</param>
+        /// <param name="created">DateTime to set Creatd field to.</param>
+        public MessagingEvent(IEvent ev, DateTime created) : base(ev)
+        {
+            _created = created;
+        }
+
         public MessagingEvent(MessagingEvent ev) : base(ev)
         {
             _created = ev.Created;
@@ -198,8 +208,12 @@ namespace Inversion.Messaging.Model
                     return new MessagingEvent(
                         context,
                         job.Value<string>("message"),
-                        DateTime.Parse(job.Value<string>("_created")),
-                        job.Value<JObject>("params").Properties().ToDictionary(p => p.Name, p => p.Value.ToString())
+                        job.Value<string>("_created") != null
+                            ? DateTime.Parse(job.Value<string>("_created"))
+                            : DateTime.MinValue,
+                        job.Value<JObject>("params").HasValues
+                            ? job.Value<JObject>("params").Properties().ToDictionary(p => p.Name, p => p.Value.ToString())
+                            : new Dictionary<string, string>()
                     );
                 }
                 else
