@@ -1,25 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Amazon.SQS.Model;
 
 using Inversion.Data;
 using Inversion.Messaging.Model;
 using Inversion.Process;
+using log4net;
 
 namespace Inversion.Messaging.Transport
 {
     public class AmazonSQSMultiTransport : AmazonSQSStore, ITransport
     {
+        private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        private static readonly Random _random = new Random();
+
         private readonly string _serviceUrlRegex;
 
         private readonly List<string> _serviceUrls = new List<string>();
 
+        private readonly bool _popFromRandomQueue;
+
         public AmazonSQSMultiTransport(string baseServiceUrl, string serviceUrlRegex, string region, string accessKey,
-            string accessSecret) : base(baseServiceUrl, region, accessKey, accessSecret)
+            string accessSecret, bool popFromRandomQueue = false) : base(baseServiceUrl, region, accessKey, accessSecret)
         {
             _serviceUrlRegex = serviceUrlRegex;
+            _popFromRandomQueue = popFromRandomQueue;
         }
 
         public override void Start()
@@ -31,6 +40,8 @@ namespace Inversion.Messaging.Transport
             Regex regex = new Regex(_serviceUrlRegex);
             
             _serviceUrls.AddRange(listQueuesResponse.QueueUrls.Where(url => regex.IsMatch(url)));
+
+            //_log.InfoFormat("AmazonSQSMultiTransport.Start: service urls: {0}", String.Join("\t", _serviceUrls));
         }
 
         public void Push(IEvent ev)
@@ -52,6 +63,51 @@ namespace Inversion.Messaging.Transport
         }
 
         protected IEvent Pop(bool withDelete)
+        {
+            if (_popFromRandomQueue)
+            {
+                return this.PopFromRandomQueue(withDelete);
+            }
+
+            return this.PopCyclic(withDelete);
+        }
+
+        protected IEvent PopFromRandomQueue(bool withDelete)
+        {
+            string serviceUrl = _serviceUrls[_random.Next(_serviceUrls.Count)];
+
+            ReceiveMessageResponse response = this.Client.ReceiveMessage(new ReceiveMessageRequest
+            {
+                MaxNumberOfMessages = 1,
+                QueueUrl = serviceUrl
+            });
+
+            if (response.Messages.Any())
+            {
+                //_log.InfoFormat("pop from: {0}", serviceUrl);
+
+                Message message = response.Messages.First();
+
+                if (message.Body.Length > 0)
+                {
+                    if (withDelete)
+                    {
+                        // remove this message from the queue
+                        this.Client.DeleteMessage(new DeleteMessageRequest
+                        {
+                            ReceiptHandle = message.ReceiptHandle,
+                            QueueUrl = serviceUrl
+                        });
+                    }
+
+                    return this.ConvertDocumentToEvent(message.Body, serviceUrl);
+                }
+            }
+
+            return null;
+        }
+
+        protected IEvent PopCyclic(bool withDelete)
         {
             foreach (string serviceUrl in _serviceUrls)
             {
