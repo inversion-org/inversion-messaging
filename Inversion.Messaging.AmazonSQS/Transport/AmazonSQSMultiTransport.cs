@@ -102,9 +102,10 @@ namespace Inversion.Messaging.Transport
 
                     return this.ConvertDocumentToEvent(message.Body, serviceUrl);
                 }
-            }
 
-            return null;
+                return null;
+            }
+            return PopCyclic(withDelete);
         }
 
         protected IEvent PopCyclic(bool withDelete)
