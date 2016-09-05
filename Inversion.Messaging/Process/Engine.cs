@@ -649,7 +649,7 @@ namespace Inversion.Messaging.Process
                     // retrieve params created by job
                     foreach (KeyValuePair<string, string> kvp in context.Params)
                     {
-                        thisEvent.Add(kvp.Key, kvp.Value);
+                        thisEvent.Params[kvp.Key] = kvp.Value;
                     }
 
                     success = true;
