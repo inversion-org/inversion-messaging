@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Amazon.SQS.Model;
 
 using Inversion.Data;
@@ -16,11 +17,15 @@ namespace Inversion.Messaging.Transport
     {
         private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
+        private ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
+
         private static readonly Random _random = new Random();
+        private DateTime _lastCheck = DateTime.MinValue;
+        private readonly TimeSpan _recheck = new TimeSpan(0, 1, 0);
 
         private readonly string _serviceUrlRegex;
 
-        private readonly List<string> _serviceUrls = new List<string>();
+        private List<string> _serviceUrls = new List<string>();
 
         private readonly bool _popFromRandomQueue;
 
@@ -35,13 +40,36 @@ namespace Inversion.Messaging.Transport
         {
             base.Start();
 
-            ListQueuesResponse listQueuesResponse = this.Client.ListQueues(new ListQueuesRequest());
-
-            Regex regex = new Regex(_serviceUrlRegex);
-            
-            _serviceUrls.AddRange(listQueuesResponse.QueueUrls.Where(url => regex.IsMatch(url)));
+            EnsureServiceUrlsUpToDate();
 
             //_log.InfoFormat("AmazonSQSMultiTransport.Start: service urls: {0}", String.Join("\t", _serviceUrls));
+        }
+
+        protected void EnsureServiceUrlsUpToDate()
+        {
+            try
+            {
+                _lock.EnterUpgradeableReadLock();
+
+                if (_lastCheck.Add(_recheck).Ticks < DateTime.Now.Ticks)
+                {
+                    _lock.EnterWriteLock();
+
+                    ListQueuesResponse listQueuesResponse = this.Client.ListQueues(new ListQueuesRequest());
+
+                    Regex regex = new Regex(_serviceUrlRegex);
+
+                    _serviceUrls = new List<string>(listQueuesResponse.QueueUrls.Where(url => regex.IsMatch(url)));
+
+                    _lastCheck = DateTime.Now;
+
+                    _lock.ExitWriteLock();
+                }
+            }
+            finally
+            {
+                _lock.ExitUpgradeableReadLock();
+            }
         }
 
         public void Push(IEvent ev)
@@ -74,6 +102,8 @@ namespace Inversion.Messaging.Transport
 
         protected IEvent PopFromRandomQueue(bool withDelete)
         {
+            this.EnsureServiceUrlsUpToDate();
+
             string serviceUrl = _serviceUrls[_random.Next(_serviceUrls.Count)];
 
             ReceiveMessageResponse response = this.Client.ReceiveMessage(new ReceiveMessageRequest
@@ -110,6 +140,8 @@ namespace Inversion.Messaging.Transport
 
         protected IEvent PopCyclic(bool withDelete)
         {
+            this.EnsureServiceUrlsUpToDate();
+
             foreach (string serviceUrl in _serviceUrls)
             {
                 ReceiveMessageResponse response = this.Client.ReceiveMessage(new ReceiveMessageRequest
@@ -154,6 +186,8 @@ namespace Inversion.Messaging.Transport
             this.AssertIsStarted();
 
             long count = 0;
+
+            this.EnsureServiceUrlsUpToDate();
 
             foreach (string serviceUrl in _serviceUrls)
             {
