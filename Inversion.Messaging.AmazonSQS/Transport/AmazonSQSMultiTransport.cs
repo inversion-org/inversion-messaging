@@ -24,16 +24,18 @@ namespace Inversion.Messaging.Transport
         private readonly TimeSpan _recheck = new TimeSpan(0, 1, 0);
 
         private readonly string _serviceUrlRegex;
+        private readonly List<string> _auxiliaryServiceUrls;
 
         private List<string> _serviceUrls = new List<string>();
 
         private readonly bool _popFromRandomQueue;
 
         public AmazonSQSMultiTransport(string baseServiceUrl, string serviceUrlRegex, string region, string accessKey,
-            string accessSecret, bool popFromRandomQueue = false) : base(baseServiceUrl, region, accessKey, accessSecret)
+            string accessSecret, List<string> auxiliaryServiceUrls = null, bool popFromRandomQueue = false) : base(baseServiceUrl, region, accessKey, accessSecret)
         {
             _serviceUrlRegex = serviceUrlRegex;
             _popFromRandomQueue = popFromRandomQueue;
+            _auxiliaryServiceUrls = auxiliaryServiceUrls;
         }
 
         public override void Start()
@@ -59,7 +61,9 @@ namespace Inversion.Messaging.Transport
 
                     Regex regex = new Regex(_serviceUrlRegex);
 
-                    _serviceUrls = new List<string>(listQueuesResponse.QueueUrls.Where(url => regex.IsMatch(url)));
+                    _serviceUrls = new List<string>(listQueuesResponse.QueueUrls.Where(url => 
+                        regex.IsMatch(url) ||
+                        (_auxiliaryServiceUrls != null && _auxiliaryServiceUrls.Contains(url))));
 
                     _lastCheck = DateTime.Now;
 
