@@ -601,7 +601,9 @@ namespace Inversion.Messaging.Process
             IProcessContext context = (_logger != null)
                 ? new TimedLoggingContext(_serviceContainer, _resourceAdapter, _logger)
                 : new TimedContext(_serviceContainer, _resourceAdapter);
-            
+
+            context.Params["engine-id"] = this.EngineId;
+
             //Console.WriteLine("ProcessEvent {0}", e.Message);
 
             // read the list of behaviours from the 'event-behaviours' list
