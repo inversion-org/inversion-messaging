@@ -30,7 +30,7 @@ namespace Inversion.Messaging.Process.Behaviour
 
             if (poppedEvent != null)
             {
-                context.Fire(new MessagingEvent(context, ev.Message, DateTime.Now, ev.Params));
+                context.Fire(new MessagingEvent(context, poppedEvent.Message, DateTime.Now, poppedEvent.Params));
             }
         }
     }
