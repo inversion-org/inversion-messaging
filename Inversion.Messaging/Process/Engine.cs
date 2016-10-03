@@ -116,7 +116,7 @@ namespace Inversion.Messaging.Process
                 match: (config) => config.Has("engine-state", "not-equals"),
                 criteria: (config, ev) =>
                 {
-                    IEnumerable<IConfigurationElement> elements = config.GetElements("engine-state", "equals");
+                    IEnumerable<IConfigurationElement> elements = config.GetElements("engine-state", "not-equals");
                     return elements.All(e => !String.Equals(e.Name, this._currentStatus.ToString(), StringComparison.InvariantCultureIgnoreCase));
                 }
             );
@@ -618,78 +618,79 @@ namespace Inversion.Messaging.Process
             this.LogDebug("engine", String.Format("ProcessEvent({0})", e.Message));
 
             // create a fresh context
-            IProcessContext context = (_logger != null)
+            using (IProcessContext context = (_logger != null)
                 ? new TimedLoggingContext(_serviceContainer, _resourceAdapter, _logger)
-                : new TimedContext(_serviceContainer, _resourceAdapter);
-
-            context.Params["engine-id"] = this.EngineId;
-
-            //Console.WriteLine("ProcessEvent {0}", e.Message);
-
-            // read the list of behaviours from the 'event-behaviours' list
-            IList<IProcessBehaviour> behaviours =
-                context.Services.GetService<List<IProcessBehaviour>>("event-behaviours");
-            // register them on the context message bus
-            context.Register(behaviours);
-            // begin an overall timer
-            context.Timers.Begin("engine::begin-event");
-
-            bool success = false;
-
-            DateTime eventCreated = DateTime.Now;
-
-            if (e is MessagingEvent)
+                : new TimedContext(_serviceContainer, _resourceAdapter))
             {
-                eventCreated = ((MessagingEvent) e).Created;
-            }
+                context.Params["engine-id"] = this.EngineId;
 
-            try
-            {
-                // construct a new event with our fresh context, the source event's message and parameters
-                // then fire the event - this will perform the actual behavioural work
-                IEvent thisEvent = new MessagingEvent(context, e.Message, eventCreated, e.Params).Fire();
+                //Console.WriteLine("ProcessEvent {0}", e.Message);
 
-                // escalate any errors
-                if (thisEvent.HasParams("_failed") || thisEvent.Context.Errors.Any())
+                // read the list of behaviours from the 'event-behaviours' list
+                IList<IProcessBehaviour> behaviours =
+                    context.Services.GetService<List<IProcessBehaviour>>("event-behaviours");
+                // register them on the context message bus
+                context.Register(behaviours);
+                // begin an overall timer
+                context.Timers.Begin("engine::begin-event");
+
+                bool success = false;
+
+                DateTime eventCreated = DateTime.Now;
+
+                if (e is MessagingEvent)
                 {
-                    string exceptionDetail = String.Join("\n", context.Errors);
-
-                    int count = -1;
-                    string candidateName;
-
-                    do
-                    {
-                        count++;
-                        candidateName = String.Format("event::exception{0}",
-                            count > 0 ? String.Concat("::", count.ToString()) : String.Empty);
-                    } while (e.Params.ContainsKey(candidateName));
-
-                    e.Params[candidateName] = exceptionDetail;
+                    eventCreated = ((MessagingEvent)e).Created;
                 }
-                else
+
+                try
                 {
-                    // retrieve params created by job
-                    foreach (KeyValuePair<string, string> kvp in context.Params)
+                    // construct a new event with our fresh context, the source event's message and parameters
+                    // then fire the event - this will perform the actual behavioural work
+                    IEvent thisEvent = new MessagingEvent(context, e.Message, eventCreated, e.Params).Fire();
+
+                    // escalate any errors
+                    if (thisEvent.HasParams("_failed") || thisEvent.Context.Errors.Any())
                     {
-                        thisEvent.Params[kvp.Key] = kvp.Value;
+                        string exceptionDetail = String.Join("\n", context.Errors);
+
+                        int count = -1;
+                        string candidateName;
+
+                        do
+                        {
+                            count++;
+                            candidateName = String.Format("event::exception{0}",
+                                count > 0 ? String.Concat("::", count.ToString()) : String.Empty);
+                        } while (e.Params.ContainsKey(candidateName));
+
+                        e.Params[candidateName] = exceptionDetail;
                     }
+                    else
+                    {
+                        // retrieve params created by job
+                        foreach (KeyValuePair<string, string> kvp in context.Params)
+                        {
+                            thisEvent.Params[kvp.Key] = kvp.Value;
+                        }
 
-                    success = true;
+                        success = true;
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                // capture the exception details in the event parameters
-                string exceptionDetail = ex.ToString();
-                e.Params["event::exception"] = exceptionDetail;
-            }
-            finally
-            {
-                // perform house-keeping on the context
-                ((TimedContext) context).Completed();
-            }
+                catch (Exception ex)
+                {
+                    // capture the exception details in the event parameters
+                    string exceptionDetail = ex.ToString();
+                    e.Params["event::exception"] = exceptionDetail;
+                }
+                finally
+                {
+                    // perform house-keeping on the context
+                    ((TimedContext)context).Completed();
+                }
 
-            return success;
+                return success;
+            }
         }
 
         protected void Log(string entity, string message)
