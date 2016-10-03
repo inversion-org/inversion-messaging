@@ -577,10 +577,13 @@ namespace Inversion.Messaging.Process
         {
             this.Log("engine", "SendHeartbeat");
 
-            IEvent ev = new MessagingEvent(null, "engine::heartbeat", DateTime.Now,
+            Task.Factory.StartNew(() =>
+            {
+                IEvent ev = new MessagingEvent(null, "engine::heartbeat", DateTime.Now,
                             new Dictionary<string, string>());
 
-            Tuple<IEvent, bool> t = new Tuple<IEvent, bool>(ev, ProcessEvent(ev));
+                Tuple<IEvent, bool> t = new Tuple<IEvent, bool>(ev, ProcessEvent(ev));
+            });
 
             _lastHeartbeat = DateTime.Now;
         }
