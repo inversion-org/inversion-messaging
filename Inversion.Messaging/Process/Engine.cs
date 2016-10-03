@@ -103,6 +103,23 @@ namespace Inversion.Messaging.Process
             _control = control;
             _config = configuration;
             _logger = logger;
+
+            Inversion.Process.Behaviour.Prototype.NamedCases["engine-state-equals"] = new Prototype.Case(
+                match: (config) => config.Has("engine-state", "equals"),
+                criteria: (config, ev) =>
+                {
+                    IEnumerable<IConfigurationElement> elements = config.GetElements("engine-state", "equals");
+                    return elements.All(e => String.Equals(e.Name, this._currentStatus.ToString(), StringComparison.InvariantCultureIgnoreCase));
+                }
+            );
+            Inversion.Process.Behaviour.Prototype.NamedCases["engine-state-not-equals"] = new Prototype.Case(
+                match: (config) => config.Has("engine-state", "not-equals"),
+                criteria: (config, ev) =>
+                {
+                    IEnumerable<IConfigurationElement> elements = config.GetElements("engine-state", "equals");
+                    return elements.All(e => !String.Equals(e.Name, this._currentStatus.ToString(), StringComparison.InvariantCultureIgnoreCase));
+                }
+            );
         }
 
         /// <summary>
