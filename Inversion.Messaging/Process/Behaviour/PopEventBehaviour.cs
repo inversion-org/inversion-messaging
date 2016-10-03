@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Inversion.Extensibility.Extensions;
+using Inversion.Messaging.Model;
 using Inversion.Messaging.Transport;
 using Inversion.Process;
 using Inversion.Process.Behaviour;
@@ -29,7 +30,7 @@ namespace Inversion.Messaging.Process.Behaviour
 
             if (poppedEvent != null)
             {
-                context.Fire(poppedEvent);
+                context.Fire(new MessagingEvent(context, ev.Message, DateTime.Now, ev.Params));
             }
         }
     }
