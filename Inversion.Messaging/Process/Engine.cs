@@ -104,19 +104,19 @@ namespace Inversion.Messaging.Process
             _config = configuration;
             _logger = logger;
 
-            Inversion.Process.Behaviour.Prototype.NamedCases["engine-state-equals"] = new Prototype.Case(
-                match: (config) => config.Has("engine-state", "equals"),
+            Inversion.Process.Behaviour.Prototype.NamedCases["engine-status-equals"] = new Prototype.Case(
+                match: (config) => config.Has("engine-status", "equals"),
                 criteria: (config, ev) =>
                 {
-                    IEnumerable<IConfigurationElement> elements = config.GetElements("engine-state", "equals");
+                    IEnumerable<IConfigurationElement> elements = config.GetElements("engine-status", "equals");
                     return elements.All(e => String.Equals(e.Name, this._currentStatus.ToString(), StringComparison.InvariantCultureIgnoreCase));
                 }
             );
-            Inversion.Process.Behaviour.Prototype.NamedCases["engine-state-not-equals"] = new Prototype.Case(
-                match: (config) => config.Has("engine-state", "not-equals"),
+            Inversion.Process.Behaviour.Prototype.NamedCases["engine-status-not-equals"] = new Prototype.Case(
+                match: (config) => config.Has("engine-status", "not-equals"),
                 criteria: (config, ev) =>
                 {
-                    IEnumerable<IConfigurationElement> elements = config.GetElements("engine-state", "not-equals");
+                    IEnumerable<IConfigurationElement> elements = config.GetElements("engine-status", "not-equals");
                     return elements.All(e => !String.Equals(e.Name, this._currentStatus.ToString(), StringComparison.InvariantCultureIgnoreCase));
                 }
             );
