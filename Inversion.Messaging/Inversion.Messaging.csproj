@@ -104,6 +104,10 @@
       <Project>{a2dbf0b8-b672-4237-8a0b-864bb0474054}</Project>
       <Name>Inversion</Name>
     </ProjectReference>
+    <ProjectReference Include="..\submodules\inversion-extensibility\Inversion.Extensibility\Inversion.Extensibility.csproj">
+      <Project>{8bdf6f79-de72-4f83-b5dc-c1abc463b201}</Project>
+      <Name>Inversion.Extensibility</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

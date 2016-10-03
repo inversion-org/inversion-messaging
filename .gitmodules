@@ -4,3 +4,6 @@
 [submodule "submodules/inversion-data"]
 	path = submodules/inversion-data
 	url = https://github.com/fractos/inversion-data.git
+[submodule "submodules/inversion-extensibility"]
+	path = submodules/inversion-extensibility
+	url = https://github.com/fractos/inversion-extensibility.git

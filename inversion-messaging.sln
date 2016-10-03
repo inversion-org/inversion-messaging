@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging", "Inversion.Messaging\Inversion.Messaging.csproj", "{18A7E8CB-CDB4-4846-8B5E-6E7D03178831}"
 EndProject
@@ -36,6 +36,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion", "submodules\inversion\Inversion\Inversion.csproj", "{A2DBF0B8-B672-4237-8A0B-864BB0474054}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Process", "submodules\inversion\Inversion.Process\Inversion.Process.csproj", "{37F59768-76EA-4D09-8976-BBC3540DB5AE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "inversion-extensibility", "inversion-extensibility", "{BCF587FC-7AF8-40E6-B270-488A5627A21D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Extensibility", "submodules\inversion-extensibility\Inversion.Extensibility\Inversion.Extensibility.csproj", "{8BDF6F79-DE72-4F83-B5DC-C1ABC463B201}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Web", "submodules\inversion\Inversion.Web\Inversion.Web.csproj", "{6951BA6B-4388-4FC8-8298-60DA7563FEE4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -103,6 +109,14 @@ Global
 		{37F59768-76EA-4D09-8976-BBC3540DB5AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37F59768-76EA-4D09-8976-BBC3540DB5AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37F59768-76EA-4D09-8976-BBC3540DB5AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BDF6F79-DE72-4F83-B5DC-C1ABC463B201}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BDF6F79-DE72-4F83-B5DC-C1ABC463B201}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BDF6F79-DE72-4F83-B5DC-C1ABC463B201}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BDF6F79-DE72-4F83-B5DC-C1ABC463B201}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6951BA6B-4388-4FC8-8298-60DA7563FEE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6951BA6B-4388-4FC8-8298-60DA7563FEE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6951BA6B-4388-4FC8-8298-60DA7563FEE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6951BA6B-4388-4FC8-8298-60DA7563FEE4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -115,5 +129,7 @@ Global
 		{1BDF9896-7D98-4BFA-B64B-DD31F79739F9} = {BA48A98A-9510-4E35-81F2-32419A6582A0}
 		{A2DBF0B8-B672-4237-8A0B-864BB0474054} = {4B64DB54-A2C8-4A2A-8F2A-C9E51EE61673}
 		{37F59768-76EA-4D09-8976-BBC3540DB5AE} = {4B64DB54-A2C8-4A2A-8F2A-C9E51EE61673}
+		{8BDF6F79-DE72-4F83-B5DC-C1ABC463B201} = {BCF587FC-7AF8-40E6-B270-488A5627A21D}
+		{6951BA6B-4388-4FC8-8298-60DA7563FEE4} = {4B64DB54-A2C8-4A2A-8F2A-C9E51EE61673}
 	EndGlobalSection
 EndGlobal
