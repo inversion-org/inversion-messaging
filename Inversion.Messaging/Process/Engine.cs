@@ -626,9 +626,24 @@ namespace Inversion.Messaging.Process
 
                 //Console.WriteLine("ProcessEvent {0}", e.Message);
 
+                //Console.WriteLine("ProcessEvent {0} reading behaviours", e.Message);
+
                 // read the list of behaviours from the 'event-behaviours' list
-                IList<IProcessBehaviour> behaviours =
-                    context.Services.GetService<List<IProcessBehaviour>>("event-behaviours");
+
+                IList<IProcessBehaviour> behaviours = null;
+
+                try
+                {
+                    behaviours = context.Services.GetService<List<IProcessBehaviour>>("event-behaviours");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("ProcessEvent {0} hit problem on read of behaviours: {1}", e.Message, ex.ToString());
+                    return false;
+                }
+                
+                //Console.WriteLine("ProcessEvent {0} registering {1} behaviours", e.Message, behaviours.Count);
+
                 // register them on the context message bus
                 context.Register(behaviours);
                 // begin an overall timer
@@ -647,6 +662,7 @@ namespace Inversion.Messaging.Process
                 {
                     // construct a new event with our fresh context, the source event's message and parameters
                     // then fire the event - this will perform the actual behavioural work
+                    //Console.WriteLine("ProcessEvent {0} firing event ", e.Message);
                     IEvent thisEvent = new MessagingEvent(context, e.Message, eventCreated, e.Params).Fire();
 
                     // escalate any errors
