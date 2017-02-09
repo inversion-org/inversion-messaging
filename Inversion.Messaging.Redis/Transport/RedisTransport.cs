@@ -1,6 +1,6 @@
 ﻿using System;
 
-using Inversion.Data.Redis;
+using Inversion.Data.Store;
 using Inversion.Messaging.Model;
 using Inversion.Process;
 
