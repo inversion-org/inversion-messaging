@@ -90,6 +90,7 @@
     <Compile Include="Transport\RedisTransport.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Inversion.Messaging.Redis.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

@@ -122,6 +122,7 @@
     <Compile Include="Transport\NullTransport.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Inversion.Messaging.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

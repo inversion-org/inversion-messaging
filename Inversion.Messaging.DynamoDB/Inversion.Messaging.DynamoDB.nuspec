@@ -1,18 +1,32 @@
 <?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>$id$</id>
     <version>$version$</version>
     <title>$title$</title>
-    <authors>$author$</authors>
-    <owners>$author$</owners>
-    <licenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</licenseUrl>
-    <projectUrl>http://PROJECT_URL_HERE_OR_DELETE_THIS_LINE</projectUrl>
-    <iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>
+    <authors>Adam Christie</authors>
+    <owners>fractos</owners>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>http://github.com/fractos/inversion-messaging</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
-    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
+    <description>Inversion.Messaging.DynamoDB library</description>
+    <releaseNotes>No changes.</releaseNotes>
     <copyright>Copyright 2017</copyright>
-    <tags>Tag1 Tag2</tags>
+    <tags>web reactive behavioural framework mvc webapi</tags>
+    <dependencies>
+      <dependency id="AWSSDK.Core" version="3.3.7.1" />
+      <dependency id="AWSSDK.DynamoDBv2" version="3.3.1.5" />
+      <dependency id="Inversion" version="1.0.0" />
+      <dependency id="Inversion.Data" version="1.0.0" />
+      <dependency id="Inversion.Data.DynamoDB" version="1.0.0" />
+      <dependency id="Inversion.Process" version="1.0.0" />
+      <dependency id="Microsoft.Bcl.Immutable" version="1.0.34" />
+      <dependency id="Newtonsoft.Json" version="6.0.8" />
+      <dependency id="Rx-Core" version="2.2.5" />
+      <dependency id="Rx-Interfaces" version="2.2.5" />
+      <dependency id="Rx-Linq" version="2.2.5" />
+      <dependency id="Rx-Main" version="2.2.5" />
+      <dependency id="Rx-PlatformServices" version="2.2.5" />
+    </dependencies>
   </metadata>
 </package>
