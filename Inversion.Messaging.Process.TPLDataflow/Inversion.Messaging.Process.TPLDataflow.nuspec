@@ -9,16 +9,16 @@
     <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
     <projectUrl>http://github.com/fractos/inversion-messaging</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Inversion.Messaging library</description>
+    <description>Inversion.Messaging.Process.TPLDataflow library</description>
     <releaseNotes>No changes.</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>web reactive behavioural framework mvc webapi</tags>
     <dependencies>
       <dependency id="Inversion" version="1.0.0" />
       <dependency id="Inversion.Data" version="1.0.0" />
-      <dependency id="Inversion.Extensibility" version="1.0.0" />
       <dependency id="Inversion.Process" version="1.0.0" />
       <dependency id="Microsoft.Bcl.Immutable" version="1.0.34" />
+      <dependency id="Microsoft.Tpl.Dataflow" version="4.5.24" />
       <dependency id="Newtonsoft.Json" version="6.0.8" />
       <dependency id="Rx-Core" version="2.2.5" />
       <dependency id="Rx-Interfaces" version="2.2.5" />
