@@ -199,6 +199,15 @@ namespace Inversion.Messaging.Model
         {
             try
             {
+                // check for SNS wrapper and remove if necessary
+                JObject eventJson = JObject.Parse(json);
+                if (eventJson["Type"] != null &&
+                    eventJson["Type"].Type == JTokenType.String &&
+                    eventJson["Type"].Value<string>() == "Notification")
+                {
+                    json = eventJson["Message"].Value<string>();
+                }
+
                 using (JsonReader reader = new JsonTextReader(new StringReader(json)))
                 {
                     reader.DateParseHandling = DateParseHandling.None;
