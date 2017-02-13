@@ -9,7 +9,9 @@ namespace Inversion.Messaging.Transport
 {
     public class AmazonSNSPush : AmazonSNSStore, IPush
     {
-        public AmazonSNSPush(string serviceUrl, string region, string accessKey, string accessSecret) : base(serviceUrl, region, accessKey, accessSecret) {}
+        public AmazonSNSPush(string serviceUrl, string region, string accessKey, string accessSecret,
+            bool disableLogging = false)
+            : base(serviceUrl, region, accessKey, accessSecret, disableLogging) {}
 
         public void Push(IEvent ev)
         {
