@@ -200,13 +200,21 @@ namespace Inversion.Messaging.Process
             IList<IProcessBehaviour> behaviours =
                 context.Services.GetService<List<IProcessBehaviour>>("application-behaviours");
 
-            // register them on the context message bus
-            context.Register(behaviours);
+            try
+            {
+                // register them on the context message bus
+                context.Register(behaviours);
 
-            // construct a new event with our fresh context, the source event's message and parameters
-            // then fire the event - this will perform the actual behavioural work
-            IEvent thisEvent = new Event(context, "application-start").Fire();
-
+                // construct a new event with our fresh context, the source event's message and parameters
+                // then fire the event - this will perform the actual behavioural work
+                IEvent thisEvent = new Event(context, "application-start").Fire();
+            }
+            catch (Exception ex)
+            {
+                this.Log("problem on application startup: {0}", ex.ToString());
+                return false;
+            }
+            
             return !context.Errors.Any();
         }
 
