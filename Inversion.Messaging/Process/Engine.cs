@@ -411,7 +411,10 @@ namespace Inversion.Messaging.Process
             _desiredState = EngineStatus.Off;
             _currentStatus = EngineStatus.Off;
 
-            _control.UpdateCurrentStatus(_config.ControlName, EngineStatus.Off);
+            if (_control.HasStarted)
+            {
+                _control.UpdateCurrentStatus(_config.ControlName, EngineStatus.Off);
+            }
 
             if (_incoming.HasStarted)
             {
