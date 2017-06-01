@@ -44,7 +44,7 @@ namespace Inversion.Messaging.Transport
 
             EnsureServiceUrlsUpToDate();
 
-            //_log.InfoFormat("AmazonSQSMultiTransport.Start: service urls: {0}", String.Join("\t", _serviceUrls));
+            _log.InfoFormat("AmazonSQSMultiTransport.Start: service urls: {0}", String.Join("\t", _serviceUrls));
         }
 
         protected void EnsureServiceUrlsUpToDate()
@@ -118,7 +118,7 @@ namespace Inversion.Messaging.Transport
 
             if (response.Messages.Any())
             {
-                //_log.InfoFormat("pop from: {0}", serviceUrl);
+                _log.InfoFormat("pop from: {0}", serviceUrl);
 
                 Message message = response.Messages.First();
 
