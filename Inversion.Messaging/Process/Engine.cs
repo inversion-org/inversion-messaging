@@ -230,12 +230,20 @@ namespace Inversion.Messaging.Process
             IList<IProcessBehaviour> behaviours =
                 context.Services.GetService<List<IProcessBehaviour>>("application-behaviours");
 
-            // register them on the context message bus
-            context.Register(behaviours);
+            try
+            {
+                // register them on the context message bus
+                context.Register(behaviours);
 
-            // construct a new event with our fresh context, the source event's message and parameters
-            // then fire the event - this will perform the actual behavioural work
-            IEvent thisEvent = new Event(context, "application-shutdown").Fire();
+                // construct a new event with our fresh context, the source event's message and parameters
+                // then fire the event - this will perform the actual behavioural work
+                IEvent thisEvent = new Event(context, "application-shutdown").Fire();
+            }
+            catch (Exception ex)
+            {
+                this.Log("problem on application shutdown: {0}", ex.ToString());
+                return false;
+            }
 
             return !context.Errors.Any();
         }
@@ -504,7 +512,7 @@ namespace Inversion.Messaging.Process
                 {
                     _engineChain.Post(_currentStatus);
 
-                    if (_startLatch && _config.ExitOnEmptyQueue && _drained)
+                    if (_startLatch && _config.ExitOnEmptyQueue && _incoming.Count() == 0)
                     {
                         // if we have no events to process but we have done some processing and we have been asked to exit on an empty queue, exit loop
                         _desiredState = EngineStatus.Off;
