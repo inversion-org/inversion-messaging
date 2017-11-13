@@ -55,6 +55,7 @@ namespace Inversion.Messaging.Process
 
         private EngineStatus _currentStatus = EngineStatus.Off;
         private long _totalProcessed = 0;
+        private long _totalProcessing = 0;
         private bool _drained = false;
 
         private bool _loggingEnabled = false;
@@ -292,6 +293,8 @@ namespace Inversion.Messaging.Process
 
                     Tuple<IEvent, bool> t = null;
 
+                    System.Threading.Interlocked.Increment(ref _totalProcessing);
+
                     try
                     {
                         t = new Tuple<IEvent, bool>(ev, ProcessEvent(ev));
@@ -299,6 +302,10 @@ namespace Inversion.Messaging.Process
                     catch (Exception)
                     {
                         return new Tuple<IEvent, bool>(null, false);
+                    }
+                    finally
+                    {
+                        System.Threading.Interlocked.Decrement(ref _totalProcessing);
                     }
 
                     System.Threading.Interlocked.Increment(ref _totalProcessed);
@@ -542,8 +549,12 @@ namespace Inversion.Messaging.Process
             bool blocksStillHaveInput = true;
             while (blocksStillHaveInput)
             {
-                blocksStillHaveInput = _enginePushBlocks.Any(b => b.InputCount > 0);
-                System.Threading.Thread.Sleep(_config.EngineMinimumYieldTime);
+                blocksStillHaveInput = _enginePushBlocks.Any(b => b.InputCount > 0)
+                                       || _totalProcessing > 0;
+                if (blocksStillHaveInput)
+                {
+                    System.Threading.Thread.Sleep(_config.EngineMinimumYieldTime);
+                }
             }
 
             _currentStatus = EngineStatus.Off;
