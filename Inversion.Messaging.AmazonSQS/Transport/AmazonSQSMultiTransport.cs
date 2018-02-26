@@ -57,7 +57,7 @@ namespace Inversion.Messaging.Transport
                 {
                     _lock.EnterWriteLock();
 
-                    ListQueuesResponse listQueuesResponse = this.Client.ListQueues(new ListQueuesRequest());
+                    ListQueuesResponse listQueuesResponse = this.Client.ListQueuesAsync(new ListQueuesRequest()).Result;
 
                     Regex regex = new Regex(_serviceUrlRegex);
 
@@ -80,11 +80,11 @@ namespace Inversion.Messaging.Transport
         {
             this.AssertIsStarted();
 
-            this.Client.SendMessage(new SendMessageRequest
+            SendMessageResponse response = this.Client.SendMessageAsync(new SendMessageRequest
             {
                 MessageBody = ev.ToJson(),
                 QueueUrl = this.ServiceUrl
-            });
+            }).Result;
         }
 
         public IEvent Pop()
@@ -110,11 +110,11 @@ namespace Inversion.Messaging.Transport
 
             string serviceUrl = _serviceUrls[_random.Next(_serviceUrls.Count)];
 
-            ReceiveMessageResponse response = this.Client.ReceiveMessage(new ReceiveMessageRequest
+            ReceiveMessageResponse response = this.Client.ReceiveMessageAsync(new ReceiveMessageRequest
             {
                 MaxNumberOfMessages = 1,
                 QueueUrl = serviceUrl
-            });
+            }).Result;
 
             if (response.Messages.Any())
             {
@@ -127,11 +127,11 @@ namespace Inversion.Messaging.Transport
                     if (withDelete)
                     {
                         // remove this message from the queue
-                        this.Client.DeleteMessage(new DeleteMessageRequest
+                        DeleteMessageResponse deleteMessageResponse = this.Client.DeleteMessageAsync(new DeleteMessageRequest
                         {
                             ReceiptHandle = message.ReceiptHandle,
                             QueueUrl = serviceUrl
-                        });
+                        }).Result;
                     }
 
                     return this.ConvertDocumentToEvent(message.Body, serviceUrl);
@@ -148,11 +148,11 @@ namespace Inversion.Messaging.Transport
 
             foreach (string serviceUrl in _serviceUrls)
             {
-                ReceiveMessageResponse response = this.Client.ReceiveMessage(new ReceiveMessageRequest
+                ReceiveMessageResponse response = this.Client.ReceiveMessageAsync(new ReceiveMessageRequest
                 {
                     MaxNumberOfMessages = 1,
                     QueueUrl = serviceUrl
-                });
+                }).Result;
 
                 if (response.Messages.Any())
                 {
@@ -163,11 +163,11 @@ namespace Inversion.Messaging.Transport
                         if (withDelete)
                         {
                             // remove this message from the queue
-                            this.Client.DeleteMessage(new DeleteMessageRequest
+                            DeleteMessageResponse deleteMessageResponse = this.Client.DeleteMessageAsync(new DeleteMessageRequest
                             {
                                 ReceiptHandle = message.ReceiptHandle,
                                 QueueUrl = serviceUrl
-                            });
+                            }).Result;
                         }
 
                         return this.ConvertDocumentToEvent(message.Body, serviceUrl);
@@ -195,11 +195,11 @@ namespace Inversion.Messaging.Transport
 
             foreach (string serviceUrl in _serviceUrls)
             {
-                GetQueueAttributesResponse response = this.Client.GetQueueAttributes(new GetQueueAttributesRequest
+                GetQueueAttributesResponse response = this.Client.GetQueueAttributesAsync(new GetQueueAttributesRequest
                 {
                     AttributeNames = new List<string> { "ApproximateNumberOfMessages" },
                     QueueUrl = serviceUrl
-                });
+                }).Result;
 
                 count += Convert.ToInt64(response.ApproximateNumberOfMessages);
             }

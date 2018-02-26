@@ -13,7 +13,7 @@ namespace Inversion.Messaging.Process
         public void ReceiveCommand(string name, IEngineCommandReceiver engineCommandReceiver, EngineStatus currentStatus)
         {
             // TODO: modify this to use the passed current status of engine
-            DynamoDBEngineControlStatus source = this.Context.Load<DynamoDBEngineControlStatus>(name);
+            DynamoDBEngineControlStatus source = this.Context.LoadAsync<DynamoDBEngineControlStatus>(name).Result;
 
             EngineControlStatus status = source.ToModel();
 
@@ -27,14 +27,14 @@ namespace Inversion.Messaging.Process
 
         public void UpdateCurrentStatus(string name, EngineStatus currentStatus)
         {
-            DynamoDBEngineControlStatus source = this.Context.Load<DynamoDBEngineControlStatus>(name);
+            DynamoDBEngineControlStatus source = this.Context.LoadAsync<DynamoDBEngineControlStatus>(name).Result;
 
             EngineControlStatus status = source.ToModel();
 
             status.CurrentStatus = currentStatus;
             status.Updated = DateTime.Now;
 
-            this.Context.Save<DynamoDBEngineControlStatus>(new DynamoDBEngineControlStatus(status));
+            this.Context.SaveAsync<DynamoDBEngineControlStatus>(new DynamoDBEngineControlStatus(status)).Wait();
         }
 
         public void UpdateDesiredStatus(string name, EngineStatus desiredStatus)
@@ -49,7 +49,7 @@ namespace Inversion.Messaging.Process
                 throw new ArgumentException("Name in engine control status was different to passed argument.");
             }
 
-            this.Context.Save<DynamoDBEngineControlStatus>(new DynamoDBEngineControlStatus(status));
+            this.Context.SaveAsync<DynamoDBEngineControlStatus>(new DynamoDBEngineControlStatus(status)).Wait();
         }
 
         public void UpdateGlobalDesiredStatus(string name, EngineStatus desiredStatus)

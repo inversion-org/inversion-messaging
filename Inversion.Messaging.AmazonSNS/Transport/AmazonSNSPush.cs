@@ -15,11 +15,11 @@ namespace Inversion.Messaging.Transport
         {
             this.AssertIsStarted();
 
-            PublishResponse response = this.Client.Publish(new PublishRequest
+            PublishResponse response = this.Client.PublishAsync(new PublishRequest
             {
                 Message = ev.ToJson(),
                 TopicArn = this.TopicArn
-            });
+            }).Result;
         }
     }
 }
