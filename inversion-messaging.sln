@@ -21,8 +21,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging.Postgre
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging.AmazonSNS", "Inversion.Messaging.AmazonSNS\Inversion.Messaging.AmazonSNS.csproj", "{28435172-E8C2-4894-9AC9-C3DCBF21EF56}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inversion.Messaging.Process.TPLDataflow", "Inversion.Messaging.Process.TPLDataflow\Inversion.Messaging.Process.TPLDataflow.csproj", "{8114DCF1-605D-4523-8A6A-B3457701A0CC}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,10 +63,6 @@ Global
 		{28435172-E8C2-4894-9AC9-C3DCBF21EF56}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28435172-E8C2-4894-9AC9-C3DCBF21EF56}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28435172-E8C2-4894-9AC9-C3DCBF21EF56}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8114DCF1-605D-4523-8A6A-B3457701A0CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8114DCF1-605D-4523-8A6A-B3457701A0CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8114DCF1-605D-4523-8A6A-B3457701A0CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8114DCF1-605D-4523-8A6A-B3457701A0CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
