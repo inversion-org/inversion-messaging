@@ -35,7 +35,7 @@ namespace Inversion.Messaging.Process.Context
                     catch (Exception err)
                     {
                         behaviour.Rescue(ev, err);
-                        throw err;
+                        throw;
                     }
                 }
             );
