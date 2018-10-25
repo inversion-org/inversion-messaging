@@ -3,16 +3,16 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>Inversion.Messaging.Sql</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Authors>Adam Christie</Authors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Inversion" Version="1.0.*" />
-    <PackageReference Include="Inversion.Data" Version="1.0.*" />
-    <PackageReference Include="Inversion.Data.Sql" Version="1.0.*" />
+    <PackageReference Include="Inversion" Version="1.0.3" />
+    <PackageReference Include="Inversion.Data" Version="1.0.4" />
+    <PackageReference Include="Inversion.Data.Sql" Version="1.0.1" />
     <PackageReference Include="Inversion.Messaging" Version="1.0.*" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3"/>
-    <PackageReference Include="System.Data.SqlClient" Version="4.4.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
   </ItemGroup>
 </Project>
