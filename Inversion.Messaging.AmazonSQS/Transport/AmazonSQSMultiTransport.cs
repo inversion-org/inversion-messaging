@@ -30,8 +30,8 @@ namespace Inversion.Messaging.Transport
 
         private readonly bool _popFromRandomQueue;
 
-        public AmazonSQSMultiTransport(string baseServiceUrl, string serviceUrlRegex, string region, string accessKey,
-            string accessSecret, List<string> auxiliaryServiceUrls = null, bool popFromRandomQueue = false) : base(baseServiceUrl, region, accessKey, accessSecret)
+        public AmazonSQSMultiTransport(string baseServiceUrl, string serviceUrlRegex, string region, string accessKey="",
+            string accessSecret="", List<string> auxiliaryServiceUrls = null, bool popFromRandomQueue = false) : base(baseServiceUrl, region, accessKey, accessSecret)
         {
             _serviceUrlRegex = serviceUrlRegex;
             _popFromRandomQueue = popFromRandomQueue;
@@ -61,7 +61,7 @@ namespace Inversion.Messaging.Transport
 
                     Regex regex = new Regex(_serviceUrlRegex);
 
-                    _serviceUrls = new List<string>(listQueuesResponse.QueueUrls.Where(url => 
+                    _serviceUrls = new List<string>(listQueuesResponse.QueueUrls.Where(url =>
                         regex.IsMatch(url) ||
                         (_auxiliaryServiceUrls != null && _auxiliaryServiceUrls.Contains(url))));
 

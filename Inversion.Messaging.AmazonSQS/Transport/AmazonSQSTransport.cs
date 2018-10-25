@@ -12,7 +12,7 @@ namespace Inversion.Messaging.Transport
 {
     public class AmazonSQSTransport : AmazonSQSStore, ITransport
     {
-        public AmazonSQSTransport(string serviceUrl, string region, string accessKey, string accessSecret) : base(serviceUrl, region, accessKey, accessSecret) {}
+        public AmazonSQSTransport(string serviceUrl, string region, string accessKey="", string accessSecret="") : base(serviceUrl, region, accessKey, accessSecret) {}
 
         public void EnsureCreated()
         {

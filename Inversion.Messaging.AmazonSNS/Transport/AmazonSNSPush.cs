@@ -9,7 +9,7 @@ namespace Inversion.Messaging.Transport
 {
     public class AmazonSNSPush : AmazonSNSStore, IPush
     {
-        public AmazonSNSPush(string serviceUrl, string region, string accessKey, string accessSecret) : base(serviceUrl, region, accessKey, accessSecret) {}
+        public AmazonSNSPush(string topicArn, string region, string accessKey="", string accessSecret="", string serviceUrl="") : base(topicArn, region, accessKey, accessSecret, serviceUrl) {}
 
         public void Push(IEvent ev)
         {
