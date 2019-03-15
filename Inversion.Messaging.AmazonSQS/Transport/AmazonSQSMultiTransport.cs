@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Amazon.Runtime;
 using Amazon.SQS.Model;
 
 using Inversion.Data;
@@ -31,7 +32,7 @@ namespace Inversion.Messaging.Transport
         private readonly bool _popFromRandomQueue;
 
         public AmazonSQSMultiTransport(string baseServiceUrl, string serviceUrlRegex, string region, string accessKey="",
-            string accessSecret="", List<string> auxiliaryServiceUrls = null, bool popFromRandomQueue = false) : base(baseServiceUrl, region, accessKey, accessSecret)
+            string accessSecret="", List<string> auxiliaryServiceUrls = null, bool popFromRandomQueue = false, AWSCredentials credentials = null) : base(baseServiceUrl, region, accessKey, accessSecret, credentials)
         {
             _serviceUrlRegex = serviceUrlRegex;
             _popFromRandomQueue = popFromRandomQueue;
