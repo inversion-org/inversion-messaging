@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/torquemaya/inversion-messaging.svg?branch=dotnetcore)](https://travis-ci.org/torquemaya/inversion-messaging)
+[![Build Status](https://travis-ci.org/inversion-org/inversion-messaging.svg)](https://travis-ci.org/inversion-org/inversion-messaging)
 
 # inversion-messaging
 Basic messaging (queues, events, transport) system.
