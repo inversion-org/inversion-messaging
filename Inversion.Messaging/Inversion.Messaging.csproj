@@ -1,121 +1,18 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{18A7E8CB-CDB4-4846-8B5E-6E7D03178831}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Inversion.Messaging</RootNamespace>
-    <AssemblyName>Inversion.Messaging</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Inversion.Messaging</PackageId>
+    <Version>1.0.2</Version>
+    <Authors>Adam Christie</Authors>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SolutionDir)packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>$(SolutionDir)packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Reactive.Interfaces, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>$(SolutionDir)packages\Rx-Interfaces.2.2.5\lib\net45\System.Reactive.Interfaces.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Reactive.Linq, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>$(SolutionDir)packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Reactive.PlatformServices, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>$(SolutionDir)packages\Rx-PlatformServices.2.2.5\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SolutionDir)packages\Microsoft.Tpl.Dataflow.4.5.24\lib\portable-net45+win8+wpa81\System.Threading.Tasks.Dataflow.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="Inversion" Version="1.0.3" />
+    <PackageReference Include="Inversion.Data" Version="1.0.4" />
+    <PackageReference Include="Inversion.Extensibility" Version="1.0.5" />
+    <PackageReference Include="Inversion.Process" Version="1.0.9" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.9.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Extensions\IEngineCommandReceiverEx.cs" />
-    <Compile Include="Extensions\JsonEx.cs" />
-    <Compile Include="Logging\ConsoleLoggingStore.cs" />
-    <Compile Include="Logging\ILoggingStore.cs" />
-    <Compile Include="Model\EngineControlStatus.cs" />
-    <Compile Include="Model\EngineOverview.cs" />
-    <Compile Include="Model\MessagingEvent.cs" />
-    <Compile Include="Process\Behaviour\PopEventBehaviour.cs" />
-    <Compile Include="Process\Context\TimedContext.cs" />
-    <Compile Include="Process\Context\TimedLoggingContext.cs" />
-    <Compile Include="Process\Engine.cs" />
-    <Compile Include="Process\EngineConfiguration.cs" />
-    <Compile Include="Process\EngineStatus.cs" />
-    <Compile Include="Process\IEngine.cs" />
-    <Compile Include="Process\IEngineCommandReceiver.cs" />
-    <Compile Include="Process\IEngineController.cs" />
-    <Compile Include="Process\IEngineOverviewStore.cs" />
-    <Compile Include="Process\IMachineNameProvider.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Transport\IPeek.cs" />
-    <Compile Include="Transport\IPop.cs" />
-    <Compile Include="Transport\IPush.cs" />
-    <Compile Include="Transport\ITransport.cs" />
-    <Compile Include="Transport\NullTransport.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)submodules\inversion-data\Inversion.Data\Inversion.Data.csproj">
-      <Project>{1cb68d8f-fbce-4dac-858c-fed6fce48306}</Project>
-      <Name>Inversion.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)submodules\inversion\Inversion.Process\Inversion.Process.csproj">
-      <Project>{37f59768-76ea-4d09-8976-bbc3540db5ae}</Project>
-      <Name>Inversion.Process</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)submodules\inversion\Inversion\Inversion.csproj">
-      <Project>{a2dbf0b8-b672-4237-8a0b-864bb0474054}</Project>
-      <Name>Inversion</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\inversion-extensibility\Inversion.Extensibility\Inversion.Extensibility.csproj">
-      <Project>{8bdf6f79-de72-4f83-b5dc-c1abc463b201}</Project>
-      <Name>Inversion.Extensibility</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

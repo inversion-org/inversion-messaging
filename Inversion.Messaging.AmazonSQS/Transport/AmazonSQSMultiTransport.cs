@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Amazon.Runtime;
 using Amazon.SQS.Model;
 
 using Inversion.Data;
@@ -30,8 +31,8 @@ namespace Inversion.Messaging.Transport
 
         private readonly bool _popFromRandomQueue;
 
-        public AmazonSQSMultiTransport(string baseServiceUrl, string serviceUrlRegex, string region, string accessKey,
-            string accessSecret, List<string> auxiliaryServiceUrls = null, bool popFromRandomQueue = false) : base(baseServiceUrl, region, accessKey, accessSecret)
+        public AmazonSQSMultiTransport(string baseServiceUrl, string serviceUrlRegex, string region, string accessKey="",
+            string accessSecret="", List<string> auxiliaryServiceUrls = null, bool popFromRandomQueue = false, AWSCredentials credentials = null) : base(baseServiceUrl, region, accessKey, accessSecret, credentials)
         {
             _serviceUrlRegex = serviceUrlRegex;
             _popFromRandomQueue = popFromRandomQueue;
@@ -44,7 +45,7 @@ namespace Inversion.Messaging.Transport
 
             EnsureServiceUrlsUpToDate();
 
-            _log.InfoFormat("AmazonSQSMultiTransport.Start: service urls: {0}", String.Join("\t", _serviceUrls));
+            //_log.InfoFormat("AmazonSQSMultiTransport.Start: service urls: {0}", String.Join("\t", _serviceUrls));
         }
 
         protected void EnsureServiceUrlsUpToDate()
@@ -57,11 +58,11 @@ namespace Inversion.Messaging.Transport
                 {
                     _lock.EnterWriteLock();
 
-                    ListQueuesResponse listQueuesResponse = this.Client.ListQueues(new ListQueuesRequest());
+                    ListQueuesResponse listQueuesResponse = this.Client.ListQueuesAsync(new ListQueuesRequest()).Result;
 
                     Regex regex = new Regex(_serviceUrlRegex);
 
-                    _serviceUrls = new List<string>(listQueuesResponse.QueueUrls.Where(url => 
+                    _serviceUrls = new List<string>(listQueuesResponse.QueueUrls.Where(url =>
                         regex.IsMatch(url) ||
                         (_auxiliaryServiceUrls != null && _auxiliaryServiceUrls.Contains(url))));
 
@@ -80,11 +81,11 @@ namespace Inversion.Messaging.Transport
         {
             this.AssertIsStarted();
 
-            this.Client.SendMessage(new SendMessageRequest
+            SendMessageResponse response = this.Client.SendMessageAsync(new SendMessageRequest
             {
                 MessageBody = ev.ToJson(),
                 QueueUrl = this.ServiceUrl
-            });
+            }).Result;
         }
 
         public IEvent Pop()
@@ -110,15 +111,15 @@ namespace Inversion.Messaging.Transport
 
             string serviceUrl = _serviceUrls[_random.Next(_serviceUrls.Count)];
 
-            ReceiveMessageResponse response = this.Client.ReceiveMessage(new ReceiveMessageRequest
+            ReceiveMessageResponse response = this.Client.ReceiveMessageAsync(new ReceiveMessageRequest
             {
                 MaxNumberOfMessages = 1,
                 QueueUrl = serviceUrl
-            });
+            }).Result;
 
             if (response.Messages.Any())
             {
-                _log.InfoFormat("pop from: {0}", serviceUrl);
+                //_log.InfoFormat("pop from: {0}", serviceUrl);
 
                 Message message = response.Messages.First();
 
@@ -127,11 +128,11 @@ namespace Inversion.Messaging.Transport
                     if (withDelete)
                     {
                         // remove this message from the queue
-                        this.Client.DeleteMessage(new DeleteMessageRequest
+                        DeleteMessageResponse deleteMessageResponse = this.Client.DeleteMessageAsync(new DeleteMessageRequest
                         {
                             ReceiptHandle = message.ReceiptHandle,
                             QueueUrl = serviceUrl
-                        });
+                        }).Result;
                     }
 
                     return this.ConvertDocumentToEvent(message.Body, serviceUrl);
@@ -148,11 +149,11 @@ namespace Inversion.Messaging.Transport
 
             foreach (string serviceUrl in _serviceUrls)
             {
-                ReceiveMessageResponse response = this.Client.ReceiveMessage(new ReceiveMessageRequest
+                ReceiveMessageResponse response = this.Client.ReceiveMessageAsync(new ReceiveMessageRequest
                 {
                     MaxNumberOfMessages = 1,
                     QueueUrl = serviceUrl
-                });
+                }).Result;
 
                 if (response.Messages.Any())
                 {
@@ -163,11 +164,11 @@ namespace Inversion.Messaging.Transport
                         if (withDelete)
                         {
                             // remove this message from the queue
-                            this.Client.DeleteMessage(new DeleteMessageRequest
+                            DeleteMessageResponse deleteMessageResponse = this.Client.DeleteMessageAsync(new DeleteMessageRequest
                             {
                                 ReceiptHandle = message.ReceiptHandle,
                                 QueueUrl = serviceUrl
-                            });
+                            }).Result;
                         }
 
                         return this.ConvertDocumentToEvent(message.Body, serviceUrl);
@@ -195,11 +196,11 @@ namespace Inversion.Messaging.Transport
 
             foreach (string serviceUrl in _serviceUrls)
             {
-                GetQueueAttributesResponse response = this.Client.GetQueueAttributes(new GetQueueAttributesRequest
+                GetQueueAttributesResponse response = this.Client.GetQueueAttributesAsync(new GetQueueAttributesRequest
                 {
                     AttributeNames = new List<string> { "ApproximateNumberOfMessages" },
                     QueueUrl = serviceUrl
-                });
+                }).Result;
 
                 count += Convert.ToInt64(response.ApproximateNumberOfMessages);
             }

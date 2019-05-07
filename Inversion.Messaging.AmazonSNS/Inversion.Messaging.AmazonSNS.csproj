@@ -1,92 +1,19 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{28435172-E8C2-4894-9AC9-C3DCBF21EF56}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Inversion.Messaging</RootNamespace>
-    <AssemblyName>Inversion.Messaging.AmazonSNS</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Inversion.Messaging.AmazonSNS</PackageId>
+    <Version>1.0.5</Version>
+    <Authors>Adam Christie</Authors>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\AWSSDK.Core.3.3.31.7\lib\net45\AWSSDK.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="AWSSDK.SimpleNotificationService, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\AWSSDK.SimpleNotificationService.3.3.3.18\lib\net45\AWSSDK.SimpleNotificationService.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>$(SolutionDir)packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="Inversion" Version="1.0.3" />
+    <PackageReference Include="Inversion.Data" Version="1.0.4" />
+    <PackageReference Include="Inversion.Data.AmazonSNS" Version="1.0.4" />
+    <PackageReference Include="Inversion.Messaging" Version="1.0.1" />
+    <PackageReference Include="AWSSDK.Core" Version="3.3.32.2" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.3.3.26" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Transport\AmazonSNSPush.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\inversion-data\Inversion.Data.AmazonSNS\Inversion.Data.AmazonSNS.csproj">
-      <Project>{da6b3cb7-0efe-46d0-b036-b5a3b046604e}</Project>
-      <Name>Inversion.Data.AmazonSNS</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\inversion-data\Inversion.Data\Inversion.Data.csproj">
-      <Project>{1cb68d8f-fbce-4dac-858c-fed6fce48306}</Project>
-      <Name>Inversion.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\inversion\Inversion.Process\Inversion.Process.csproj">
-      <Project>{37f59768-76ea-4d09-8976-bbc3540db5ae}</Project>
-      <Name>Inversion.Process</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\inversion\Inversion\Inversion.csproj">
-      <Project>{a2dbf0b8-b672-4237-8a0b-864bb0474054}</Project>
-      <Name>Inversion</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Inversion.Messaging\Inversion.Messaging.csproj">
-      <Project>{18a7e8cb-cdb4-4846-8b5e-6e7d03178831}</Project>
-      <Name>Inversion.Messaging</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include="..\..\..\packages\AWSSDK.SimpleNotificationService.3.3.3.18\analyzers\dotnet\cs\AWSSDK.SimpleNotificationService.CodeAnalysis.dll" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

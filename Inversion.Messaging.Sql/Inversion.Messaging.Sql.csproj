@@ -1,78 +1,18 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A9A73BCC-F72D-4310-A701-29A69C12F708}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Inversion.Messaging</RootNamespace>
-    <AssemblyName>Inversion.Messaging.Sql</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Inversion.Messaging.Sql</PackageId>
+    <Version>1.0.2</Version>
+    <Authors>Adam Christie</Authors>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="Inversion" Version="1.0.3" />
+    <PackageReference Include="Inversion.Data" Version="1.0.4" />
+    <PackageReference Include="Inversion.Data.Sql" Version="1.0.1" />
+    <PackageReference Include="Inversion.Messaging" Version="1.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Process\SqlEngineController.cs" />
-    <Compile Include="Process\SqlEngineOverviewStore.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Transport\SqlTransport.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Inversion.Messaging\Inversion.Messaging.csproj">
-      <Project>{18a7e8cb-cdb4-4846-8b5e-6e7d03178831}</Project>
-      <Name>Inversion.Messaging</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)submodules\inversion-data\Inversion.Data.Sql\Inversion.Data.Sql.csproj">
-      <Project>{1bdf9896-7d98-4bfa-b64b-dd31f79739f9}</Project>
-      <Name>Inversion.Data.Sql</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)submodules\inversion-data\Inversion.Data\Inversion.Data.csproj">
-      <Project>{1cb68d8f-fbce-4dac-858c-fed6fce48306}</Project>
-      <Name>Inversion.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)submodules\inversion\Inversion.Process\Inversion.Process.csproj">
-      <Project>{37f59768-76ea-4d09-8976-bbc3540db5ae}</Project>
-      <Name>Inversion.Process</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)submodules\inversion\Inversion\Inversion.csproj">
-      <Project>{a2dbf0b8-b672-4237-8a0b-864bb0474054}</Project>
-      <Name>Inversion</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

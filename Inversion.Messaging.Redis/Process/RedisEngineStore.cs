@@ -2,7 +2,7 @@ using System;
 
 using StackExchange.Redis;
 
-using Inversion.Data.Redis;
+using Inversion.Data.Store;
 
 namespace Inversion.Messaging.Process
 {

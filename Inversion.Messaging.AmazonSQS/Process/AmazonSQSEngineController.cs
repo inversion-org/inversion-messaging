@@ -7,7 +7,7 @@ namespace Inversion.Messaging.Process
 {
     public class AmazonSQSEngineController : AmazonSQSStore, IEngineController
     {
-        public AmazonSQSEngineController(string serviceUrl, string region, string accessKey, string accessSecret) : base(serviceUrl, region, accessKey, accessSecret) {}
+        public AmazonSQSEngineController(string serviceUrl, string region, string accessKey="", string accessSecret="") : base(serviceUrl, region, accessKey, accessSecret) {}
 
         public void ReceiveCommand(string name, IEngineCommandReceiver engineCommandReceiver, EngineStatus currentStatus)
         {
