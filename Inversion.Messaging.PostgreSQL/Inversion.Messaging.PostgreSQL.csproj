@@ -13,6 +13,6 @@
     <PackageReference Include="Inversion.Messaging" Version="1.0.1" />
     <PackageReference Include="Inversion.Messaging.Sql" Version="1.0.1" />
     <PackageReference Include="Npgsql" Version="4.0.5" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 </Project>
