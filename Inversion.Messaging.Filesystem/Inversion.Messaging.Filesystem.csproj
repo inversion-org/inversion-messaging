@@ -12,6 +12,6 @@
     <PackageReference Include="Inversion.Data" Version="1.0.4" />
     <PackageReference Include="Inversion.Process" Version="1.0.9" />
     <PackageReference Include="Inversion.Messaging" Version="1.0.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   </ItemGroup>
 </Project>
